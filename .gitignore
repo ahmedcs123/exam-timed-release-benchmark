@@ -1,0 +1,34 @@
+# Node / Hardhat
+node_modules/
+cache/
+artifacts/
+typechain-types/
+coverage/
+coverage.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Secrets and local settings (never commit keys)
+.env
+.env.*
+*.key
+*.pem
+
+# Blockchain and etcd runtime data (recreated fresh for every run)
+arm-a-ledger/network/data/
+arm-b-coordinator/etcd-data/
+**/besu-data/
+
+# Large generated exam files (regenerated from the fixed seed)
+shared/exams/*.bin
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
