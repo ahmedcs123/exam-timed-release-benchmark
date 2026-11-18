@@ -9,5 +9,10 @@
     "test": "node --test",
     "make-exam": "node scripts/make-exam.js"
   },
-  "engines": { "node": ">=22" }
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "shamir-secret-sharing": "0.0.4"
+  }
 }
