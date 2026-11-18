@@ -1,0 +1,13 @@
+{
+  "name": "@etr/shared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Shared code for all arms: synthetic exam generator and AES-256-GCM exam encryption",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node --test",
+    "make-exam": "node scripts/make-exam.js"
+  },
+  "engines": { "node": ">=22" }
+}
