@@ -1,0 +1,25 @@
+{
+  "name": "@etr/arm-a-ledger",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Arm A (treatment): threshold key release coordinated by a Solidity contract on a 4-validator Hyperledger Besu QBFT network",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "compile": "node scripts/compile.js",
+    "network:gen": "node scripts/gen-network.js",
+    "network:up": "docker compose -f network/generated/docker-compose.yml -p etr-arm-a up -d",
+    "network:check": "node scripts/check-network.js",
+    "network:down": "docker compose -f network/generated/docker-compose.yml -p etr-arm-a down -v"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "ethers": "6.17.0",
+    "solc": "0.8.38"
+  },
+  "overrides": {
+    "tmp": "0.2.7"
+  }
+}

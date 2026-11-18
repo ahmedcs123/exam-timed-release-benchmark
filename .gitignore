@@ -32,3 +32,6 @@ shared/exams/*.bin
 Thumbs.db
 .vscode/
 .idea/
+
+# Arm A generated network files (validator keys, genesis): recreated by scripts/gen-network
+arm-a-ledger/network/generated/
