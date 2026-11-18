@@ -1,0 +1,11 @@
+{
+  "name": "@etr/arm-c-central",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Arm C (reference only): a single key server that holds the whole exam key and releases it at T0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": { "node": ">=22" }
+}
