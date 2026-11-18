@@ -1,0 +1,14 @@
+{
+  "name": "@etr/arm-b-coordinator",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Arm B (strong comparator): threshold key release coordinated by a REST service over a 3-node etcd (Raft) cluster, no ledger",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/arm-b.unit.test.js",
+    "test:etcd": "node --test test/arm-b.etcd.test.js",
+    "etcd:up": "docker compose up -d",
+    "etcd:down": "docker compose down -v"
+  },
+  "engines": { "node": ">=22" }
+}
