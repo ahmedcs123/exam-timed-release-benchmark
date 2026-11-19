@@ -1,6 +1,8 @@
 // One exam session for one arm, run inside the load-generator container (same code for all arms).
 // Config from env: ARM (A|B|C), RUN_ID, SEED, M, K, N, POLL_MS, EXAM_SIZE, T0_DELAY_MS, TIMEOUT_MS,
 // TRUSTEES_PRESENT (e.g. "0,2,4"), RETRY_MS, OUT_DIR, ENDPOINT (B/C service URL), RPC_URLS (A).
+// Optional fault injection (design Section 8): FAULT = corrupt-share (F3) | early-submit (F4); TEST_ID labels
+// the record. With FAULT unset the session behaves exactly as before.
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import {
@@ -24,8 +26,12 @@ const cfg = {
   present: env.TRUSTEES_PRESENT ? env.TRUSTEES_PRESENT.split(',').map(Number) : null,
   outDir: env.OUT_DIR ?? '/results',
   endpoint: env.ENDPOINT,
+  fault: env.FAULT || null,
+  testId: env.TEST_ID || null,
 };
 if (!['A', 'B', 'C'].includes(cfg.arm)) throw new Error('ARM must be A, B or C');
+if (![null, 'corrupt-share', 'early-submit'].includes(cfg.fault)) throw new Error('FAULT must be corrupt-share or early-submit');
+if (cfg.fault && cfg.arm === 'C') throw new Error('FAULT applies to trustees, so only to arms A and B');
 const present = cfg.present ?? Array.from({ length: cfg.n }, (_, i) => i);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const marks = { start: nowMs() };
@@ -45,6 +51,7 @@ const t0Ms = Math.ceil((nowMs() + cfg.t0DelayMs) / 1000) * 1000;
 
 // 3. Arm-specific setup and channel
 let fetcherFor, submitAt;
+let faultOps = null; // per-arm single submission used only by fault injection
 if (cfg.arm === 'C') {
   const c = await import('../../arm-c-central/src/client.js');
   await c.registerExam(cfg.endpoint, examId, key, t0Ms);
@@ -66,6 +73,12 @@ if (cfg.arm === 'C') {
     } while (nowMs() < t0Ms + cfg.timeoutMs);
     return { index: i, ok: status === 201, status, attempts, sentAtMs, doneAtMs: nowMs() };
   }));
+  // One validly signed submission (no retry): only the commitment check or the T0 check can reject it.
+  faultOps = async (i, share) => {
+    const sentAtMs = nowMs();
+    const status = await b.submitShare(cfg.endpoint, examId, i, share, trustees[i].privateKey);
+    return { accepted: status === 201, status, sentAtMs, doneAtMs: nowMs() };
+  };
 } else {
   const chain = await import('../../arm-a-ledger/src/chain.js');
   const a = await import('../../arm-a-ledger/src/client.js');
@@ -81,6 +94,20 @@ if (cfg.arm === 'C') {
     const r = await a.submitWhenAllowed(address, chain.wallet(1 + i, urls[i % urls.length]), examId, i, shares[i], { retryMs: cfg.retryMs, timeoutMs: cfg.timeoutMs });
     return { index: i, ok: r.ok, reason: r.reason ?? null, gasUsed: r.gasUsed ? Number(r.gasUsed) : null, attempts: r.attempts, sentAtMs, doneAtMs: nowMs() };
   }));
+  // One submission with a fixed gas limit, so ethers skips its gas estimate (which would fail in the client)
+  // and the transaction is mined: the contract itself must reject it (receipt status 0).
+  faultOps = async (i, share) => {
+    const w = chain.wallet(1 + i, urls[i % urls.length]);
+    const c = chain.contractAt(address, w);
+    const sentAtMs = nowMs();
+    let rc = null, reason = null;
+    try { rc = await (await c.submitShare(examId, i, share, { ...chain.TX, gasLimit: 500_000n })).wait(); }
+    catch (e) { rc = e.receipt ?? null; reason = e.code || e.shortMessage || String(e.message); }
+    const blockTimestamp = rc ? (await w.provider.getBlock(rc.blockNumber)).timestamp : null;
+    const [idx] = await c.getShares(examId);
+    return { accepted: rc?.status === 1, mined: !!rc, receiptStatus: rc?.status ?? null, blockNumber: rc?.blockNumber ?? null,
+      blockTimestamp, reason, storedForIndexAfter: idx.filter((x) => Number(x) === i).length, sentAtMs, doneAtMs: nowMs() };
+  };
 }
 marks.setupDone = nowMs();
 const setupOverran = marks.setupDone >= t0Ms; // harness error before T0 -> run is discarded (design Section 6)
@@ -95,9 +122,27 @@ const centresP = Promise.all(Array.from({ length: cfg.m }, async (_, i) => { awa
   centreId: i, t0Ms, encryptedExam, expectedSha256, obtainKey: fetcherFor(i), pollMs: cfg.pollMs, timeoutMs: cfg.timeoutMs,
   expectedKeySha256: sha256Hex(key),
 }); }));
+// Fault injection (F3/F4). The fault trustee is the first present trustee.
+//   early-submit: at T0 - 5 s it submits its (honest) share once; it must be rejected. It then submits normally at T0.
+//   corrupt-share: at T0 it first submits its share with one byte flipped (validly signed in B); it must be
+//   rejected; then all trustees submit honestly (the honest submissions start after this one attempt).
+const faultIdx = present[0];
+let faultP = Promise.resolve(null);
+if (cfg.fault === 'early-submit') {
+  faultP = (async () => { await sleep(Math.max(0, t0Ms - 5000 - nowMs())); return { type: cfg.fault, index: faultIdx, ...(await faultOps(faultIdx, shares[faultIdx])) }; })();
+} else if (cfg.fault === 'corrupt-share') {
+  const honestSubmit = submitAt;
+  submitAt = async () => {
+    const bad = Buffer.from(shares[faultIdx]); bad[bad.length - 1] ^= 0x01;
+    const r = await faultOps(faultIdx, bad);
+    faultP = Promise.resolve({ type: cfg.fault, index: faultIdx, ...r });
+    return honestSubmit();
+  };
+}
 await sleep(Math.max(0, t0Ms - nowMs()));
 const trustees = await submitAt();
 const centres = await centresP;
+const fault = await faultP;
 marks.end = nowMs();
 
 // Correctness oracle after the timed window: decrypt the exam once with the released key (Section 7).
@@ -117,7 +162,12 @@ const summary = {
   setupOverran,
   decryptOracleOk,
 };
+// F2 (design Section 8): "alert raised" = no centre obtained the key by the timeout (T0 + TIMEOUT_MS; 60 s in F2)
+// and fewer than k shares were accepted. Defined before any F2 data (docs/DEVIATIONS.md, 2026-11-19).
+summary.acceptedShares = cfg.arm === 'C' ? null : trustees.filter((t) => t.ok).length;
+summary.alert = cfg.arm !== 'C' && summary.okCentres === 0 && summary.acceptedShares < cfg.k ? 'insufficient shares' : null;
 const record = { schema: 1, config: { ...cfg, present }, examId, t0Ms, marks, summary, trustees, centres };
+record.fault = fault;
 mkdirSync(cfg.outDir, { recursive: true });
 const file = `${cfg.outDir}/${cfg.runId}.json`;
 writeFileSync(file, JSON.stringify(record, null, 2));

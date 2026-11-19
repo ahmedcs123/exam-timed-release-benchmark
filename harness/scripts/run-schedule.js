@@ -13,6 +13,8 @@
 //   node harness/scripts/run-schedule.js --phase pilot --blocks 2 --arms A,B,C --dry-run
 // Options: --phase smoke|pilot|raw  --blocks N  --arms A,B,C  --seed0 1000  --sched-seed 20261119
 //          --m 50 --k 3 --n 5 --poll-ms 500 --exam-size 5MB --ready-timeout-s 300 --sample-ms 500
+//          Fault tests (phase faults): --test F1 --present 0,1,2 --fault corrupt-share|early-submit --timeout-ms 60000
+//          (these apply to the measured session only; the warm-up session is always a normal one)
 import { spawn, spawnSync } from 'node:child_process';
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve, join } from 'node:path';
@@ -32,8 +34,9 @@ const cfg = {
   pollMs: Number(opt('poll-ms', 500)), examSize: opt('exam-size', '5MB'),
   readyTimeoutS: Number(opt('ready-timeout-s', 300)), sampleMs: Number(opt('sample-ms', 500)),
   dryRun: flag('dry-run'),
+  test: opt('test', null), present: opt('present', null), fault: opt('fault', null), timeoutMs: opt('timeout-ms', null),
 };
-if (!['smoke', 'pilot', 'raw'].includes(cfg.phase)) throw new Error('--phase must be smoke, pilot or raw');
+if (!['smoke', 'pilot', 'raw', 'faults'].includes(cfg.phase)) throw new Error('--phase must be smoke, pilot, raw or faults');
 if (cfg.arms.some((a) => !['A', 'B', 'C'].includes(a))) throw new Error('--arms takes A, B and/or C');
 
 const ROOT = process.cwd();
@@ -144,8 +147,8 @@ function down(arm) {
   sh('docker', ['compose', ...ARMS[arm].compose, 'down', '-v', '--remove-orphans']);
   sh('docker', ['rm', '-f', ...ARMS[arm].servers]); // in case a stack was started earlier under another project name
 }
-function session(arm, runId, seed, outSub) {
-  const e = { ARM: arm, RUN_ID: runId, SEED: String(seed), M: String(cfg.m), K: String(cfg.k), N: String(cfg.n),
+function session(arm, runId, seed, outSub, extra = {}) {
+  const e = { ...extra, ARM: arm, RUN_ID: runId, SEED: String(seed), M: String(cfg.m), K: String(cfg.k), N: String(cfg.n),
     POLL_MS: String(cfg.pollMs), EXAM_SIZE: cfg.examSize, OUT_DIR: `/results/${outSub}`, ...ARMS[arm].env };
   const envArgs = Object.entries(e).flatMap(([k, v]) => ['-e', `${k}=${v}`]);
   sh('docker', ['rm', '-f', 'etr-loadgen']);
@@ -158,7 +161,7 @@ const lastJson = (text) => { const l = text.split('\n').reverse().find((x) => x.
 const plan = [];
 for (let b = 1; b <= cfg.blocks; b++) {
   const seed = cfg.seed0 + b; // the same session material for every arm in the block (matched design)
-  shuffled(cfg.arms, cfg.schedSeed + b).forEach((arm, pos) => plan.push({ block: b, pos, arm, seed, runId: `${cfg.phase}-b${String(b).padStart(3, '0')}-${arm}` }));
+  shuffled(cfg.arms, cfg.schedSeed + b).forEach((arm, pos) => plan.push({ block: b, pos, arm, seed, runId: `${cfg.phase}${cfg.test ? `-${cfg.test}` : ''}-b${String(b).padStart(3, '0')}-${arm}` }));
 }
 console.log(`Schedule (${plan.length} runs, sched-seed ${cfg.schedSeed}):`);
 for (const p of plan) console.log(`  block ${p.block}  ${p.pos + 1}. arm ${p.arm}  seed ${p.seed}  ${p.runId}`);
@@ -199,7 +202,8 @@ for (const p of plan) {
     const storageBefore = await storageOf(A.servers);
     const sampler = startSampler(A.servers, cfg.sampleMs);
     rec.marks.sessionStart = Date.now();
-    const s = await session(p.arm, p.runId, p.seed, '.');
+    const faultEnv = Object.fromEntries(Object.entries({ TEST_ID: cfg.test, TRUSTEES_PRESENT: cfg.present, FAULT: cfg.fault, TIMEOUT_MS: cfg.timeoutMs }).filter(([, v]) => v != null));
+    const s = await session(p.arm, p.runId, p.seed, '.', faultEnv);
     rec.marks.sessionEnd = Date.now();
     const resources = await sampler.stop();
     const storageAfter = await storageOf(A.servers);
