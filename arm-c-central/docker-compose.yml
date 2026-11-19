@@ -1,0 +1,14 @@
+# Arm C (reference): the single key server as a container, capped at 1 CPU like every server-side container.
+# Build the image first from the repo root: docker build -f Dockerfile.node -t etr-node:dev .
+services:
+  keyserver:
+    image: etr-node:dev
+    container_name: etr-keyserver
+    working_dir: /app/arm-c-central
+    command: ["node", "src/main.js"]
+    environment:
+      PORT: "8080"
+      CLOCK_SKEW_MS: "${CLOCK_SKEW_MS:-0}"
+    cpus: 1.0
+    ports: ["18080:8080"]
+    restart: "no"

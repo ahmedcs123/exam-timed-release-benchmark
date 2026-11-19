@@ -6,6 +6,8 @@ const here = (p) => new URL(p, import.meta.url);
 export const artifact = JSON.parse(readFileSync(here('../build/ExamRelease.json'), 'utf8'));
 export const network = JSON.parse(readFileSync(here('../network/generated/network.json'), 'utf8'));
 export const accounts = JSON.parse(readFileSync(here('../network/generated/accounts.json'), 'utf8')).accounts;
+// RPC endpoints: network.json (host ports) by default; RPC_URLS overrides them inside containers.
+export const rpcUrls = process.env.RPC_URLS ? process.env.RPC_URLS.split(',') : network.rpc;
 
 // Zero-fee private network: legacy transactions with gasPrice 0 (node runs with --min-gas-price=0).
 export const TX = { type: 0, gasPrice: 0n };
@@ -16,7 +18,7 @@ export function makeProvider(url) {
   return p;
 }
 
-export function wallet(index, url = network.rpc[0]) {
+export function wallet(index, url = rpcUrls[0]) {
   return new Wallet(accounts[index].privateKey, makeProvider(url));
 }
 

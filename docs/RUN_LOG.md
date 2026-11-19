@@ -1,0 +1,14 @@
+# Run log
+
+Every smoke, pilot and measured run, every discarded run and every correction is recorded here
+(design Section 6). Measured runs also keep their raw JSON in `results/raw/`; smoke and pilot outputs
+are not part of the data.
+
+| Date | Phase | Run / change | What happened | Action | Affects data? |
+| --- | --- | --- | --- | --- | --- |
+| 2026-11-19 | Smoke (6a) | smoke-C-1: Arm C in Docker, M = 50, 5 MB exam | All 50 centres got the key, none early, but L50 about 1.05 s and L95 about 2.2 s with 500 ms polling. Cause: the load generator decrypted the 5 MB exam for every centre inside the timed polling loop, one after another, which delayed the other centres' polls (load-generator artefact, the same for all arms) | Centres now check the key by its SHA-256 inside the timed loop; the exam is decrypted once after the window as the correctness oracle (`decryptOracleOk`). Metric definition L_i (Section 7) unchanged | No (before any measured data) |
+| 2026-11-19 | Smoke (6a) | Check after the fix | All centres started polling at the same instant, so their polls were phase-locked | Each centre starts with a fixed, seeded phase offset in [0, POLL_MS) | No (before any measured data) |
+| 2026-11-19 | Smoke (6a) | smoke-C-2 after both fixes | 50/50 centres, none early, decrypt oracle OK; L95 = 498 ms and Lmax = 500 ms, bounded by the 500 ms polling interval as expected. L50 = 431 ms showed the phase offsets covered only part of the interval (offset formula clustered) | Phase offsets changed to evenly spaced i/M over the interval, rotated by a seed-derived fraction | No (before any measured data) |
+| 2026-11-19 | Smoke (6a) | smoke-B-1: Arm B in Docker (coordinator + 3 etcd), M = 50 | 50/50 centres, none early, decrypt oracle OK | None | No (smoke only) |
+| 2026-11-19 | Smoke (6a) | Besu network start | After `network:up`, the 4 nodes needed more than 2 minutes to peer and produce blocks (60 s was not enough; on 18 Nov it was shorter). Start-up time varies | The run scheduler will poll `network:check` until NETWORK OK (with a timeout) instead of waiting a fixed time; a run that never becomes ready is a harness error before T0 (discarded and logged) | No (smoke only) |
+| 2026-11-19 | Smoke (6a) | smoke-A-1: Arm A in Docker (load generator on the Besu network), M = 50 | 50/50 centres, none early, decrypt oracle OK, setup finished before T0 | None | No (smoke only) |

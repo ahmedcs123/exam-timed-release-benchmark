@@ -1,0 +1,24 @@
+# One image for every Node.js component: Arm C key server, Arm B coordinator, and the load generator
+# (trustees + centres, shared by all arms). Base image pinned by digest (checked 19 Nov 2026).
+FROM node:22-bookworm-slim@sha256:e9f565d32859f0cbfb52125eafe8be39390f24dac302dc3cdf566e8ba3ab21ee
+
+WORKDIR /app
+ENV NODE_ENV=production
+
+# Dependencies first (cached layers), installed exactly from the lock files
+COPY shared/package.json shared/package-lock.json shared/
+RUN cd shared && npm ci --omit=dev
+COPY arm-a-ledger/package.json arm-a-ledger/package-lock.json arm-a-ledger/
+RUN cd arm-a-ledger && npm ci --omit=dev
+
+# Source code
+COPY shared/src shared/src
+COPY arm-c-central/package.json arm-c-central/
+COPY arm-c-central/src arm-c-central/src
+COPY arm-b-coordinator/package.json arm-b-coordinator/
+COPY arm-b-coordinator/src arm-b-coordinator/src
+COPY arm-a-ledger/src arm-a-ledger/src
+COPY arm-a-ledger/build arm-a-ledger/build
+COPY harness/src harness/src
+
+USER node

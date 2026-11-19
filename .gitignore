@@ -35,3 +35,7 @@ Thumbs.db
 
 # Arm A generated network files (validator keys, genesis): recreated by scripts/gen-network
 arm-a-ledger/network/generated/
+
+# Smoke and pilot outputs (not part of the measured data)
+results/smoke/
+results/pilot/
