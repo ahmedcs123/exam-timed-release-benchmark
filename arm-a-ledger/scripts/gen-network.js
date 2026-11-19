@@ -92,6 +92,7 @@ const bootnode = `enode://${pubs[0]}@${IPS[0]}:30303`;
 const service = (i) => `  besu${i + 1}:
     image: ${BESU_IMAGE}
     container_name: etr-besu${i + 1}
+    cpus: 1.0
     restart: "no"
     environment:
       BESU_OPTS: "-Xmx1g"
