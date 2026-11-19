@@ -1,0 +1,32 @@
+{
+  "date": "2026-11-19T08:41:13.003Z",
+  "image": "etr-node:dev",
+  "tests": {
+    "cpu": {
+      "expectedCpuSeconds": 10,
+      "measuredCpuSeconds": 10.023447,
+      "errorPct": 0.23447000000000884,
+      "pass": true,
+      "samplerIntervalMeanMs": 501.58620689655174,
+      "samplerIntervalMaxMs": 514,
+      "samplerErrors": 0
+    },
+    "memory": {
+      "expectedMiB": 500,
+      "baselineMiB": 9.125,
+      "peakMiB": 510.40234375,
+      "measuredDeltaMiB": 501.27734375,
+      "errorPct": 0.25546875,
+      "pass": true
+    },
+    "clock": {
+      "n": 50,
+      "maxAbsOffsetMs": 5,
+      "meanRttMs": 4.2,
+      "maxRttMs": 20,
+      "thresholdMs": 10,
+      "pass": true
+    }
+  },
+  "allPass": true
+}

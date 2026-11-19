@@ -1,0 +1,11 @@
+{
+  "name": "@etr/harness",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Load generator (session.js), Docker resource sampler and run scheduler",
+  "type": "module",
+  "scripts": {
+    "validate": "node scripts/validate-tools.js"
+  },
+  "engines": { "node": ">=22" }
+}
