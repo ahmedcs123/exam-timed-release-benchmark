@@ -169,7 +169,7 @@ if (cfg.dryRun) process.exit(0);
 
 mkdirSync(join(OUT, 'warmup'), { recursive: true });
 const keepAlive = setInterval(() => {}, 60_000); // safety net: the event loop never empties mid-schedule
-const git = { commit: sh('git', ['rev-parse', 'HEAD']).out || null, dirty: (sh('git', ['status', '--porcelain']).out || '') !== '' };
+const git = { commit: sh('git', ['rev-parse', 'HEAD']).out || null, dirty: (sh('git', ['status', '--porcelain', '--', '.', ':(exclude)results']).out || '') !== '' }; // results/ is output, not code
 const imageId = sh('docker', ['image', 'inspect', IMAGE, '--format', '{{.Id}}']).out || null;
 if (!imageId) throw new Error(`Image ${IMAGE} not found: docker build -f Dockerfile.node -t ${IMAGE} .`);
 const logFile = join(OUT, 'schedule-log.jsonl');

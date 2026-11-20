@@ -1,0 +1,70 @@
+{
+  "date": "2026-11-19T23:03:10.032Z",
+  "required": 10,
+  "results": [
+    {
+      "test": "F1",
+      "arm": "A",
+      "valid": 10,
+      "passed": 10,
+      "failedRuns": [],
+      "verdict": "PASS"
+    },
+    {
+      "test": "F1",
+      "arm": "B",
+      "valid": 10,
+      "passed": 10,
+      "failedRuns": [],
+      "verdict": "PASS"
+    },
+    {
+      "test": "F2",
+      "arm": "A",
+      "valid": 10,
+      "passed": 10,
+      "failedRuns": [],
+      "verdict": "PASS"
+    },
+    {
+      "test": "F2",
+      "arm": "B",
+      "valid": 10,
+      "passed": 10,
+      "failedRuns": [],
+      "verdict": "PASS"
+    },
+    {
+      "test": "F3",
+      "arm": "A",
+      "valid": 10,
+      "passed": 10,
+      "failedRuns": [],
+      "verdict": "PASS"
+    },
+    {
+      "test": "F3",
+      "arm": "B",
+      "valid": 10,
+      "passed": 10,
+      "failedRuns": [],
+      "verdict": "PASS"
+    },
+    {
+      "test": "F4",
+      "arm": "A",
+      "valid": 10,
+      "passed": 10,
+      "failedRuns": [],
+      "verdict": "PASS"
+    },
+    {
+      "test": "F4",
+      "arm": "B",
+      "valid": 10,
+      "passed": 10,
+      "failedRuns": [],
+      "verdict": "PASS"
+    }
+  ]
+}
