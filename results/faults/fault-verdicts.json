@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-19T23:03:10.032Z",
+  "date": "2026-11-20T18:20:28.683Z",
   "required": 10,
   "results": [
     {
@@ -60,6 +60,139 @@
     },
     {
       "test": "F4",
+      "arm": "B",
+      "valid": 10,
+      "passed": 10,
+      "failedRuns": [],
+      "verdict": "PASS"
+    },
+    {
+      "test": "F6",
+      "arm": "A",
+      "valid": 10,
+      "passed": 10,
+      "failedRuns": [],
+      "verdict": "PASS"
+    },
+    {
+      "test": "F6",
+      "arm": "B",
+      "valid": 10,
+      "passed": 0,
+      "failedRuns": [
+        {
+          "run": "faults-F6-b001-B",
+          "checks": [
+            true,
+            false,
+            false,
+            true
+          ]
+        },
+        {
+          "run": "faults-F6-b002-B",
+          "checks": [
+            true,
+            false,
+            false,
+            true
+          ]
+        },
+        {
+          "run": "faults-F6-b003-B",
+          "checks": [
+            true,
+            false,
+            false,
+            true
+          ]
+        },
+        {
+          "run": "faults-F6-b004-B",
+          "checks": [
+            true,
+            false,
+            false,
+            true
+          ]
+        },
+        {
+          "run": "faults-F6-b005-B",
+          "checks": [
+            true,
+            false,
+            false,
+            true
+          ]
+        },
+        {
+          "run": "faults-F6-b006-B",
+          "checks": [
+            true,
+            false,
+            false,
+            true
+          ]
+        },
+        {
+          "run": "faults-F6-b007-B",
+          "checks": [
+            true,
+            false,
+            false,
+            true
+          ]
+        },
+        {
+          "run": "faults-F6-b008-B",
+          "checks": [
+            true,
+            false,
+            false,
+            true
+          ]
+        },
+        {
+          "run": "faults-F6-b009-B",
+          "checks": [
+            true,
+            false,
+            false,
+            true
+          ]
+        },
+        {
+          "run": "faults-F6-b010-B",
+          "checks": [
+            true,
+            false,
+            false,
+            true
+          ]
+        }
+      ],
+      "verdict": "FAIL"
+    },
+    {
+      "test": "F7",
+      "arm": "A",
+      "valid": 10,
+      "passed": 9,
+      "failedRuns": [
+        {
+          "run": "faults-F7-b007-A",
+          "checks": [
+            true,
+            false,
+            true,
+            true
+          ]
+        }
+      ],
+      "verdict": "FAIL"
+    },
+    {
+      "test": "F7",
       "arm": "B",
       "valid": 10,
       "passed": 10,

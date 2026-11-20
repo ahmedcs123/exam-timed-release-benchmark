@@ -14,6 +14,8 @@ const TESTS = {
   F4: { group: 1, seed0: 3400, args: ['--fault', 'early-submit'] },                  // one submission at T0 - 5 s
   F6: { group: 3, seed0: 3600, args: ['--censor', '0,10,20,30,40'] },                // 5 of 50 centres censored
   F7: { group: 3, seed0: 3700, args: ['--kill-at-t0'] },                             // 1 replica killed at T0
+  F8: { group: 4, seed0: 3800, args: ['--fault', 'tamper-record'] },                 // operator tampers with the record
+  G1: { group: 4, seed0: 3900, args: ['--fault', 'change-trustees', '--timeout-ms', '60000'] }, // one admin changes trustees
 };
 
 const argv = process.argv.slice(2);

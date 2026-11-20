@@ -1,0 +1,157 @@
+{
+  "schema": 1,
+  "block": 10,
+  "pos": 0,
+  "arm": "A",
+  "seed": 3710,
+  "runId": "faults-F7-b010-A",
+  "phase": "faults",
+  "git": {
+    "commit": "6497f00bf785aa151d258d2df2d65e250cece75e",
+    "dirty": true
+  },
+  "imageId": "sha256:bac97d970accd7569bc8ae8d7d0e02dff5311ab7595b0d572fd82fda634c0833",
+  "cell": {
+    "m": 50,
+    "k": 3,
+    "n": 5,
+    "pollMs": 500,
+    "examSize": "5MB"
+  },
+  "marks": {
+    "upStart": 1795198403750,
+    "ready": 1795198515353,
+    "sessionStart": 1795198535756,
+    "sessionEnd": 1795198559404
+  },
+  "readySeconds": 111.603,
+  "warmup": {
+    "ok": true,
+    "summary": {
+      "file": "/results/warmup/faults-F7-b010-A-warmup.json",
+      "arm": "A",
+      "L50": 2741,
+      "L95": 2979,
+      "Lmax": 3035,
+      "completion60s": 1,
+      "earlyCount": 0,
+      "okCentres": 50,
+      "setupOverran": false,
+      "decryptOracleOk": true,
+      "acceptedShares": 5,
+      "alert": null
+    }
+  },
+  "kill": {
+    "container": "etr-besu4",
+    "plannedAtMs": 1795198553000,
+    "t0Ms": 1795198553000,
+    "startedAtMs": 1795198553006,
+    "killedAtMs": 1795198553678,
+    "ok": true
+  },
+  "session": {
+    "ok": true,
+    "summary": {
+      "file": "/results/./faults-F7-b010-A.json",
+      "arm": "A",
+      "L50": 5540,
+      "L95": 5903,
+      "Lmax": 6011,
+      "completion60s": 1,
+      "earlyCount": 0,
+      "okCentres": 50,
+      "setupOverran": false,
+      "decryptOracleOk": true,
+      "acceptedShares": 4,
+      "alert": null
+    },
+    "file": "faults-F7-b010-A.json"
+  },
+  "resources": {
+    "perContainer": {
+      "etr-besu1": {
+        "samples": 47,
+        "errors": 0,
+        "cpuSeconds": 12.20068,
+        "memMaxBytes": 387792896,
+        "intervalMeanMs": 502.60869565217394,
+        "intervalMaxMs": 526
+      },
+      "etr-besu2": {
+        "samples": 47,
+        "errors": 0,
+        "cpuSeconds": 13.068263,
+        "memMaxBytes": 392806400,
+        "intervalMeanMs": 502.6304347826087,
+        "intervalMaxMs": 519
+      },
+      "etr-besu3": {
+        "samples": 47,
+        "errors": 0,
+        "cpuSeconds": 10.69193,
+        "memMaxBytes": 392302592,
+        "intervalMeanMs": 502.6304347826087,
+        "intervalMaxMs": 523
+      },
+      "etr-besu4": {
+        "samples": 47,
+        "errors": 0,
+        "cpuSeconds": 8.490318,
+        "memMaxBytes": 387956736,
+        "intervalMeanMs": 502.5,
+        "intervalMaxMs": 733
+      }
+    },
+    "cpuSecondsTotal": 44.451191,
+    "memMaxBytesSum": 1560858624,
+    "samplerErrors": 0
+  },
+  "storage": {
+    "before": {
+      "etr-besu1": {
+        "sizeRwBytes": 117067776,
+        "volumes": [],
+        "totalBytes": 117067776
+      },
+      "etr-besu2": {
+        "sizeRwBytes": 117022720,
+        "volumes": [],
+        "totalBytes": 117022720
+      },
+      "etr-besu3": {
+        "sizeRwBytes": 116981760,
+        "volumes": [],
+        "totalBytes": 116981760
+      },
+      "etr-besu4": {
+        "sizeRwBytes": 116977664,
+        "volumes": [],
+        "totalBytes": 116977664
+      }
+    },
+    "after": {
+      "etr-besu1": {
+        "sizeRwBytes": 117690368,
+        "volumes": [],
+        "totalBytes": 117690368
+      },
+      "etr-besu2": {
+        "sizeRwBytes": 117690368,
+        "volumes": [],
+        "totalBytes": 117690368
+      },
+      "etr-besu3": {
+        "sizeRwBytes": 117645312,
+        "volumes": [],
+        "totalBytes": 117645312
+      },
+      "etr-besu4": {
+        "sizeRwBytes": 117444608,
+        "volumes": [],
+        "totalBytes": 117444608
+      }
+    },
+    "growthBytes": 2420736
+  }
+}

@@ -29,6 +29,15 @@ const CRITERIA = {
   // F7: the replica was really killed at T0 (within 1 s after it) and the release still completed for every centre.
   // Kill command issued within 1 s after T0 and confirmed by Docker (docker kill itself can take ~0.7 s to return).
   F7: (r, res) => [res?.kill?.ok === true, res.kill.startedAtMs >= r.t0Ms && res.kill.startedAtMs - r.t0Ms <= 1000, allGotKey(r)],
+  // G1: one admin's attempt to change the trustee set after setup is refused by code, the set is unchanged and the
+  // release still completes with the original trustees.
+  G1: (r) => [r.fault?.type === 'change-trustees', r.fault.accepted === false, r.fault.trusteesUnchanged === true,
+    r.config.arm === 'A' ? r.fault.mined === true && r.fault.receiptStatus === 0 : true, allGotKey(r)],
+  // F8: the independent auditor detects each tampering with the record (share edited, submission time moved, entry
+  // deleted); in A the contract must also refuse the operator's edit/delete transactions. The release itself happened
+  // before the tampering, so every centre must have the key.
+  F8: (r) => [r.fault?.type === 'tamper-record', r.fault.detected?.shareEdit === true, r.fault.detected?.timeEdit === true,
+    r.fault.detected?.deletion === true, r.config.arm === 'A' ? r.fault.contractRefusedWrites === true : true, allGotKey(r)],
   F4: (r) => [r.fault?.type === 'early-submit', r.config.arm === 'B' ? rejectedB(r.fault, 425) : rejectedA(r.fault),
     r.config.arm === 'A' ? r.fault?.blockTimestamp != null && r.fault.blockTimestamp * 1000 < r.t0Ms : r.fault?.sentAtMs < r.t0Ms,
     allGotKey(r)],
