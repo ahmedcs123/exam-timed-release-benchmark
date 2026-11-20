@@ -33,10 +33,12 @@ const cfg = {
   endpoint: env.ENDPOINT,
   fault: env.FAULT || null,
   testId: env.TEST_ID || null,
+  trusteeMode: env.TRUSTEE_MODE || 'at-t0', // 'eager' (F5): trustees try from setup on and retry until accepted
   censored: env.CENSORED ? env.CENSORED.split(',').map(Number) : [],
 };
 if (!['A', 'B', 'C'].includes(cfg.arm)) throw new Error('ARM must be A, B or C');
 if (![null, 'corrupt-share', 'early-submit', 'change-trustees', 'tamper-record'].includes(cfg.fault)) throw new Error('FAULT must be corrupt-share, early-submit, change-trustees or tamper-record');
+if (!['at-t0', 'eager'].includes(cfg.trusteeMode)) throw new Error('TRUSTEE_MODE must be at-t0 or eager');
 if (cfg.fault && cfg.arm === 'C') throw new Error('FAULT applies to trustees, so only to arms A and B');
 const present = cfg.present ?? Array.from({ length: cfg.n }, (_, i) => i);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -60,6 +62,7 @@ let fetcherFor, submitAt;
 let faultOps = null; // per-arm single submission used only by fault injection
 let g1Op = null;     // per-arm attempt by one admin to replace the trustee set (G1)
 let tamperOp = null; // per-arm tampering with the submission record + independent audit (F8)
+let eagerOnce = null; // per-arm single honest submission attempt for eager trustees (F5)
 if (cfg.arm === 'C') {
   const c = await import('../../arm-c-central/src/client.js');
   await c.registerExam(cfg.endpoint, examId, key, t0Ms);
@@ -128,6 +131,8 @@ if (cfg.arm === 'C') {
     return { tampering: ['edit share 0', 'move time of share 1 by +2 s', 'delete share 2'], audit,
       detected: { shareEdit: flagged(0), timeEdit: flagged(1), deletion: flagged(2) } };
   };
+  // F5: one honest, validly signed attempt; the coordinator's own clock decides whether it is too early.
+  eagerOnce = async (i) => { const sentAtMs = nowMs(); const status = await b.submitShare(cfg.endpoint, examId, i, shares[i], trustees[i].privateKey); return { accepted: status === 201, result: status, sentAtMs }; };
 } else {
   const chain = await import('../../arm-a-ledger/src/chain.js');
   const a = await import('../../arm-a-ledger/src/client.js');
@@ -197,6 +202,14 @@ if (cfg.arm === 'C') {
       attempts, contractRefusedWrites: attempts.every((a) => a.mined && a.receiptStatus === 0), audit,
       detected: { shareEdit: dev(0, 'share edit'), timeEdit: dev(1, 'time edit'), deletion: dev(2, 'deletion') } };
   };
+  // F5: one honest attempt through the normal client (gas estimate on the trustee's own node, then the transaction).
+  const eagerWallets = {};
+  eagerOnce = async (i) => {
+    eagerWallets[i] ??= chain.wallet(1 + i, urls[i % urls.length]);
+    const sentAtMs = nowMs();
+    const r = await a.submitShare(address, eagerWallets[i], examId, i, shares[i]);
+    return { accepted: r.ok === true, result: r.ok ? 'ok' : r.reason, sentAtMs };
+  };
 }
 marks.setupDone = nowMs();
 console.log(JSON.stringify({ event: 'setup-done', t0Ms })); // lets the scheduler act at T0 (F7)
@@ -233,6 +246,25 @@ if (cfg.fault === 'early-submit') {
 if (cfg.fault === 'change-trustees') faultP = (async () => ({ type: cfg.fault, ...(await g1Op()) }))();
 // F8: after every centre is done and at least 5 s after T0, the record is tampered with and then audited.
 if (cfg.fault === 'tamper-record') faultP = (async () => { await centresP; await sleep(Math.max(0, t0Ms + 5000 - nowMs())); return { type: cfg.fault, ...(await tamperOp()) }; })();
+// F5: eager trustees start right after setup and retry every RETRY_MS until accepted or until T0 + TIMEOUT_MS, as
+// client software that submits "as soon as allowed" would. Per trustee: number of attempts, attempts sent before T0,
+// the distinct results seen, and when the share was first accepted.
+if (cfg.trusteeMode === 'eager') {
+  const eagerP = Promise.all(present.map(async (i) => {
+    let attempts = 0, beforeT0 = 0, acceptedAtMs = null, firstSentAtMs = null;
+    const results = {};
+    while (nowMs() < t0Ms + cfg.timeoutMs) {
+      let at;
+      try { at = await eagerOnce(i); } catch (e) { at = { accepted: false, result: String(e.code || e.message).slice(0, 60), sentAtMs: nowMs() }; }
+      attempts++; firstSentAtMs ??= at.sentAtMs; if (at.sentAtMs < t0Ms) beforeT0++;
+      results[at.result] = (results[at.result] || 0) + 1;
+      if (at.accepted) { acceptedAtMs = nowMs(); break; }
+      await sleep(cfg.retryMs);
+    }
+    return { index: i, ok: acceptedAtMs != null, mode: 'eager', attempts, attemptsBeforeT0: beforeT0, results, acceptedAtMs, sentAtMs: firstSentAtMs, doneAtMs: nowMs() };
+  }));
+  submitAt = () => eagerP;
+}
 await sleep(Math.max(0, t0Ms - nowMs()));
 const trustees = await submitAt();
 const centres = await centresP;

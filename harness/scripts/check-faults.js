@@ -38,6 +38,10 @@ const CRITERIA = {
   // before the tampering, so every centre must have the key.
   F8: (r) => [r.fault?.type === 'tamper-record', r.fault.detected?.shareEdit === true, r.fault.detected?.timeEdit === true,
     r.fault.detected?.deletion === true, r.config.arm === 'A' ? r.fault.contractRefusedWrites === true : true, allGotKey(r)],
+  // F5: with one clock 30 s ahead (A: one validator; B: the coordinator host) and trustees submitting as early as
+  // they are allowed, no centre may obtain the key before T0 (tolerance 0 ms, fixed before data), and the skew must
+  // have been in effect (A: besu4's own log timestamps; B: the coordinator's configuration).
+  F5: (r, res) => [r.config.trusteeMode === 'eager', res?.skewCheck?.ok === true, r.summary.earlyCount === 0],
   F4: (r) => [r.fault?.type === 'early-submit', r.config.arm === 'B' ? rejectedB(r.fault, 425) : rejectedA(r.fault),
     r.config.arm === 'A' ? r.fault?.blockTimestamp != null && r.fault.blockTimestamp * 1000 < r.t0Ms : r.fault?.sentAtMs < r.t0Ms,
     allGotKey(r)],

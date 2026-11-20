@@ -38,6 +38,7 @@ const cfg = {
   dryRun: flag('dry-run'),
   test: opt('test', null), present: opt('present', null), fault: opt('fault', null), timeoutMs: opt('timeout-ms', null),
   censor: opt('censor', null), killAtT0: flag('kill-at-t0'),
+  clockSkewMs: Number(opt('clock-skew-ms', 0)), trusteeMode: opt('trustee-mode', null), t0DelayMs: opt('t0-delay-ms', null),
 };
 if (!['smoke', 'pilot', 'raw', 'faults'].includes(cfg.phase)) throw new Error('--phase must be smoke, pilot, raw or faults');
 if (cfg.arms.some((a) => !['A', 'B', 'C'].includes(a))) throw new Error('--arms takes A, B and/or C');
@@ -151,6 +152,40 @@ const sumBytes = (s) => Object.values(s).reduce((a, v) => a + (v.totalBytes ?? 0
 function mulberry32(a) { return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 function shuffled(list, seed) { const r = mulberry32(seed), a = [...list]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
+// F5 manipulation check for A: Besu writes its own (JVM) time at the start of every log line and Docker adds the
+// real time with --timestamps; the median difference over recent lines is the node's clock offset.
+function logOffsetS(container) {
+  const r = sh('docker', ['logs', '--timestamps', '--tail', '60', container]);
+  const offs = [];
+  const samples = [];
+  for (const raw of `${r.out}\n${r.err}`.split('\n')) {
+    const line = raw.replace(/\x1b\[[0-9;]*m/g, ''); // strip colour codes
+    const d = line.match(/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(\.\d+)?Z\s+(.*)$/); // Docker's real time
+    if (!d) continue;
+    const real = Date.parse(`${d[1]}${(d[2] || '').slice(0, 4)}Z`);
+    // Besu's own time near the start of the line: with or without a date, with or without a zone (UTC if none)
+    const j = d[3].slice(0, 45).match(/(?:(\d{4}-\d{2}-\d{2})[ T])?(\d{2}:\d{2}:\d{2})([.,]\d{1,3})?\d*\s*([+-]\d{2}:?\d{2}|Z)?/);
+    if (!j) continue;
+    const tz = !j[4] || j[4] === 'Z' ? 'Z' : (j[4].includes(':') ? j[4] : `${j[4].slice(0, 3)}:${j[4].slice(3)}`);
+    const day = j[1] || d[1].slice(0, 10);
+    let jvm = Date.parse(`${day}T${j[2]}${(j[3] || '').replace(',', '.')}${tz}`);
+    if (!j[1] && Number.isFinite(jvm)) { while (jvm - real > 43_200_000) jvm -= 86_400_000; while (real - jvm > 43_200_000) jvm += 86_400_000; }
+    if (Number.isFinite(real) && Number.isFinite(jvm)) { offs.push((jvm - real) / 1000); if (samples.length < 2) samples.push(line.slice(0, 120)); }
+  }
+  offs.sort((x, y) => x - y);
+  const firstLines = `${r.out}\n${r.err}`.split('\n').filter(Boolean).slice(-2).map((x) => x.slice(0, 120));
+  return { lines: offs.length, medianS: offs.length ? offs[Math.floor(offs.length / 2)] : null, samples: samples.length ? samples : firstLines };
+}
+function skewCheck(arm, skewMs) {
+  if (arm === 'A') {
+    const skewed = logOffsetS('etr-besu4'), honest = logOffsetS('etr-besu1'), want = skewMs / 1000;
+    return { arm, wantS: want, besu4: skewed, besu1: honest,
+      ok: skewed.medianS != null && honest.medianS != null && Math.abs(skewed.medianS - want) <= 5 && Math.abs(honest.medianS) <= 2 };
+  }
+  const env = sh('docker', ['inspect', 'etr-coordinator', '--format', '{{json .Config.Env}}']).out;
+  return { arm, configured: env.includes(`CLOCK_SKEW_MS=${skewMs}`), ok: env.includes(`CLOCK_SKEW_MS=${skewMs}`) };
+}
+
 function down(arm) {
   sh('docker', ['compose', ...ARMS[arm].compose, 'down', '-v', '--remove-orphans']);
   sh('docker', ['rm', '-f', ...ARMS[arm].servers]); // in case a stack was started earlier under another project name
@@ -192,7 +227,11 @@ for (const p of plan) {
   try {
     down(p.arm);
     rec.marks.upStart = Date.now();
-    const up = sh('docker', ['compose', ...A.compose, 'up', '-d'], p.arm === 'B' && cfg.censor ? { CENSOR_CENTRES: cfg.censor } : null);
+    // F5: B's coordinator gets CLOCK_SKEW_MS; A's besu4 runs the libfaketime image (extra compose file)
+    const upEnv = { ...(p.arm === 'B' && cfg.censor ? { CENSOR_CENTRES: cfg.censor } : {}),
+      ...(cfg.clockSkewMs ? (p.arm === 'B' ? { CLOCK_SKEW_MS: String(cfg.clockSkewMs) } : { CLOCK_SKEW_S: String(Math.round(cfg.clockSkewMs / 1000)) }) : {}) };
+    const upFiles = p.arm === 'A' && cfg.clockSkewMs ? [...A.compose.slice(0, 2), '-f', 'arm-a-ledger/docker/f5-skew.override.yml', ...A.compose.slice(2)] : A.compose;
+    const up = sh('docker', ['compose', ...upFiles, 'up', '-d'], Object.keys(upEnv).length ? upEnv : null);
     if (!up.ok) { discard('compose up failed', { err: up.err.slice(-500) }); down(p.arm); continue; }
     let ready = false;
     const deadline = Date.now() + cfg.readyTimeoutS * 1000;
@@ -200,6 +239,10 @@ for (const p of plan) {
     rec.marks.ready = Date.now();
     rec.readySeconds = (rec.marks.ready - rec.marks.upStart) / 1000;
     if (!ready) { discard(`not ready after ${cfg.readyTimeoutS} s (harness error before T0)`); down(p.arm); continue; }
+    if (cfg.clockSkewMs) {
+      rec.skewCheck = skewCheck(p.arm, cfg.clockSkewMs);
+      if (!rec.skewCheck.ok) { discard('clock skew not in effect (harness error before T0)', { skewCheck: rec.skewCheck }); down(p.arm); continue; }
+    }
 
     // Warm-up session (discarded by design, kept only for inspection)
     const w = await session(p.arm, `${p.runId}-warmup`, p.seed, 'warmup');
@@ -210,7 +253,7 @@ for (const p of plan) {
     const storageBefore = await storageOf(A.servers);
     const sampler = startSampler(A.servers, cfg.sampleMs);
     rec.marks.sessionStart = Date.now();
-    const faultEnv = Object.fromEntries(Object.entries({ TEST_ID: cfg.test, TRUSTEES_PRESENT: cfg.present, FAULT: cfg.fault, TIMEOUT_MS: cfg.timeoutMs, CENSORED: cfg.censor }).filter(([, v]) => v != null));
+    const faultEnv = Object.fromEntries(Object.entries({ TEST_ID: cfg.test, TRUSTEES_PRESENT: cfg.present, FAULT: cfg.fault, TIMEOUT_MS: cfg.timeoutMs, CENSORED: cfg.censor, TRUSTEE_MODE: cfg.trusteeMode, T0_DELAY_MS: cfg.t0DelayMs }).filter(([, v]) => v != null));
     // F7: kill one replica at T0 of the measured session (T0 comes from the session's setup-done line)
     let killTimer = null;
     const onLine = !cfg.killAtT0 ? null : (line) => {

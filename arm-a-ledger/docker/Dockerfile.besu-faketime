@@ -1,0 +1,12 @@
+# F5 only (design Section 8): the pinned Besu image plus libfaketime, so that ONE validator's clock can run ahead.
+# Used for besu4 in F5 runs only (via f5-skew.override.yml); every other run uses the plain pinned image.
+# Build from the repo root:  docker build -f arm-a-ledger/docker/Dockerfile.besu-faketime -t etr-besu-faketime:dev .
+FROM hyperledger/besu:26.10.0@sha256:7ce78163f9de6733bb868c8bd2ebb4e6e90cc7cb950034ff8c333b1a0c27aace
+ARG RUN_AS=besu
+USER root
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends faketime \
+ && rm -rf /var/lib/apt/lists/* \
+ && test -f /usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1 \
+ && dpkg-query -W -f='${Package} ${Version}\n' faketime libfaketime | tee /faketime-version.txt
+USER ${RUN_AS}
