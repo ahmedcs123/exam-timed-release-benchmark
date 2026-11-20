@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-20T18:20:28.683Z",
+  "date": "2026-11-20T20:29:49.962Z",
   "required": 10,
   "results": [
     {
@@ -198,6 +198,270 @@
       "passed": 10,
       "failedRuns": [],
       "verdict": "PASS"
+    },
+    {
+      "test": "F8",
+      "arm": "A",
+      "valid": 10,
+      "passed": 10,
+      "failedRuns": [],
+      "verdict": "PASS"
+    },
+    {
+      "test": "F8",
+      "arm": "B",
+      "valid": 10,
+      "passed": 0,
+      "failedRuns": [
+        {
+          "run": "faults-F8-b001-B",
+          "checks": [
+            true,
+            true,
+            false,
+            false,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "run": "faults-F8-b002-B",
+          "checks": [
+            true,
+            true,
+            false,
+            false,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "run": "faults-F8-b003-B",
+          "checks": [
+            true,
+            true,
+            false,
+            false,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "run": "faults-F8-b004-B",
+          "checks": [
+            true,
+            true,
+            false,
+            false,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "run": "faults-F8-b005-B",
+          "checks": [
+            true,
+            true,
+            false,
+            false,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "run": "faults-F8-b006-B",
+          "checks": [
+            true,
+            true,
+            false,
+            false,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "run": "faults-F8-b007-B",
+          "checks": [
+            true,
+            true,
+            false,
+            false,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "run": "faults-F8-b008-B",
+          "checks": [
+            true,
+            true,
+            false,
+            false,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "run": "faults-F8-b009-B",
+          "checks": [
+            true,
+            true,
+            false,
+            false,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "run": "faults-F8-b010-B",
+          "checks": [
+            true,
+            true,
+            false,
+            false,
+            true,
+            true,
+            true
+          ]
+        }
+      ],
+      "verdict": "FAIL"
+    },
+    {
+      "test": "G1",
+      "arm": "A",
+      "valid": 10,
+      "passed": 10,
+      "failedRuns": [],
+      "verdict": "PASS"
+    },
+    {
+      "test": "G1",
+      "arm": "B",
+      "valid": 10,
+      "passed": 0,
+      "failedRuns": [
+        {
+          "run": "faults-G1-b001-B",
+          "checks": [
+            true,
+            false,
+            false,
+            true,
+            false,
+            true
+          ]
+        },
+        {
+          "run": "faults-G1-b002-B",
+          "checks": [
+            true,
+            false,
+            false,
+            true,
+            false,
+            true
+          ]
+        },
+        {
+          "run": "faults-G1-b003-B",
+          "checks": [
+            true,
+            false,
+            false,
+            true,
+            false,
+            true
+          ]
+        },
+        {
+          "run": "faults-G1-b004-B",
+          "checks": [
+            true,
+            false,
+            false,
+            true,
+            false,
+            true
+          ]
+        },
+        {
+          "run": "faults-G1-b005-B",
+          "checks": [
+            true,
+            false,
+            false,
+            true,
+            false,
+            true
+          ]
+        },
+        {
+          "run": "faults-G1-b006-B",
+          "checks": [
+            true,
+            false,
+            false,
+            true,
+            false,
+            true
+          ]
+        },
+        {
+          "run": "faults-G1-b007-B",
+          "checks": [
+            true,
+            false,
+            false,
+            true,
+            false,
+            true
+          ]
+        },
+        {
+          "run": "faults-G1-b008-B",
+          "checks": [
+            true,
+            false,
+            false,
+            true,
+            false,
+            true
+          ]
+        },
+        {
+          "run": "faults-G1-b009-B",
+          "checks": [
+            true,
+            false,
+            false,
+            true,
+            false,
+            true
+          ]
+        },
+        {
+          "run": "faults-G1-b010-B",
+          "checks": [
+            true,
+            false,
+            false,
+            true,
+            false,
+            true
+          ]
+        }
+      ],
+      "verdict": "FAIL"
     }
   ]
 }
