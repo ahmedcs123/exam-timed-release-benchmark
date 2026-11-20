@@ -58,7 +58,9 @@ export function summarize(samples) {
     out[name] = {
       samples: arr.length,
       errors: arr.length - ok.length,
-      cpuSeconds: ok.length >= 2 ? (ok.at(-1).cpuNs - ok[0].cpuNs) / 1e9 : null,
+      // Cumulative counter: max = last sample in a normal run; after a docker kill (F7) the counter reads 0,
+      // so the max keeps the CPU used up to the kill instead of a negative difference.
+      cpuSeconds: ok.length >= 2 ? (Math.max(...ok.map((s) => s.cpuNs)) - ok[0].cpuNs) / 1e9 : null,
       memMaxBytes: ok.length ? Math.max(...ok.map((s) => s.memBytes ?? 0)) : null,
       intervalMeanMs: gaps.length ? gaps.reduce((a, b) => a + b, 0) / gaps.length : null,
       intervalMaxMs: gaps.length ? Math.max(...gaps) : null,

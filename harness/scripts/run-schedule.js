@@ -15,6 +15,8 @@
 //          --m 50 --k 3 --n 5 --poll-ms 500 --exam-size 5MB --ready-timeout-s 300 --sample-ms 500
 //          Fault tests (phase faults): --test F1 --present 0,1,2 --fault corrupt-share|early-submit --timeout-ms 60000
 //          (these apply to the measured session only; the warm-up session is always a normal one)
+//          --censor 0,10,20,30,40 (F6; in B the coordinator is started with CENSOR_CENTRES, which also affects the
+//          discarded warm-up)  --kill-at-t0 (F7: docker kill of etr-besu4 / etr-etcd3 at T0 of the measured session)
 import { spawn, spawnSync } from 'node:child_process';
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve, join } from 'node:path';
@@ -35,6 +37,7 @@ const cfg = {
   readyTimeoutS: Number(opt('ready-timeout-s', 300)), sampleMs: Number(opt('sample-ms', 500)),
   dryRun: flag('dry-run'),
   test: opt('test', null), present: opt('present', null), fault: opt('fault', null), timeoutMs: opt('timeout-ms', null),
+  censor: opt('censor', null), killAtT0: flag('kill-at-t0'),
 };
 if (!['smoke', 'pilot', 'raw', 'faults'].includes(cfg.phase)) throw new Error('--phase must be smoke, pilot, raw or faults');
 if (cfg.arms.some((a) => !['A', 'B', 'C'].includes(a))) throw new Error('--arms takes A, B and/or C');
@@ -51,7 +54,10 @@ const ARMS = {
     compose: ['-f', 'arm-a-ledger/network/generated/docker-compose.yml', '-p', 'etr-arm-a'],
     network: 'etr-arm-a_besu',
     servers: ['etr-besu1', 'etr-besu2', 'etr-besu3', 'etr-besu4'],
-    env: { RPC_URLS: 'http://besu1:8545,http://besu2:8545,http://besu3:8545,http://besu4:8545' },
+    // Fixed validator IPs (generated compose), not container names: after a node is killed (F7) its name no longer
+    // resolves and DNS look-ups slowed every centre in the load generator (smoke 2026-11-20). Same nodes as before.
+    env: { RPC_URLS: 'http://172.28.0.11:8545,http://172.28.0.12:8545,http://172.28.0.13:8545,http://172.28.0.14:8545' },
+    killTarget: 'etr-besu4', // F7: 1 of 4 validators
     // chain.js reads these two generated files at import; they are not baked into the image (gitignored,
     // regenerated per network), so they are bind-mounted read-only. Validator keys are NOT mounted.
     mounts: ['network.json', 'accounts.json'].map((f) => `${resolve(ROOT, 'arm-a-ledger/network/generated', f)}:/app/arm-a-ledger/network/generated/${f}:ro`),
@@ -62,6 +68,7 @@ const ARMS = {
     network: 'etr-arm-b_default',
     servers: ['etr-etcd1', 'etr-etcd2', 'etr-etcd3', 'etr-coordinator'],
     env: { ENDPOINT: 'http://coordinator:8080' },
+    killTarget: 'etr-etcd3', // F7: 1 of 3 etcd replicas
     ready: readyB,
   },
   C: {
@@ -74,15 +81,16 @@ const ARMS = {
 };
 
 // ---------- helpers ----------
-function sh(cmd, args) {
-  const r = spawnSync(cmd, args, { encoding: 'utf8', cwd: ROOT });
+function sh(cmd, args, extraEnv = null) {
+  const r = spawnSync(cmd, args, { encoding: 'utf8', cwd: ROOT, ...(extraEnv ? { env: { ...process.env, ...extraEnv } } : {}) });
   return { ok: r.status === 0, out: (r.stdout || '').trim(), err: (r.stderr || '').trim() };
 }
-function shAsync(cmd, args) {
+function shAsync(cmd, args, onLine = null) {
   return new Promise((res) => {
     const p = spawn(cmd, args, { cwd: ROOT });
-    let out = '', err = '';
+    let out = '', err = '', partial = '';
     p.stdout.on('data', (d) => { out += d; });
+    if (onLine) p.stdout.on('data', (d) => { const parts = (partial + d).split('\n'); partial = parts.pop(); parts.forEach(onLine); });
     p.stderr.on('data', (d) => { err += d; });
     p.on('close', (code) => res({ ok: code === 0, code, out: out.trim(), err: err.trim() }));
   });
@@ -147,13 +155,13 @@ function down(arm) {
   sh('docker', ['compose', ...ARMS[arm].compose, 'down', '-v', '--remove-orphans']);
   sh('docker', ['rm', '-f', ...ARMS[arm].servers]); // in case a stack was started earlier under another project name
 }
-function session(arm, runId, seed, outSub, extra = {}) {
+function session(arm, runId, seed, outSub, extra = {}, onLine = null) {
   const e = { ...extra, ARM: arm, RUN_ID: runId, SEED: String(seed), M: String(cfg.m), K: String(cfg.k), N: String(cfg.n),
     POLL_MS: String(cfg.pollMs), EXAM_SIZE: cfg.examSize, OUT_DIR: `/results/${outSub}`, ...ARMS[arm].env };
   const envArgs = Object.entries(e).flatMap(([k, v]) => ['-e', `${k}=${v}`]);
   sh('docker', ['rm', '-f', 'etr-loadgen']);
   return shAsync('docker', ['run', '--rm', '--name', 'etr-loadgen', '--network', ARMS[arm].network,
-    '-v', `${OUT}:/results`, ...(ARMS[arm].mounts || []).flatMap((m) => ['-v', m]), '-w', '/app', ...envArgs, IMAGE, 'node', 'harness/src/session.js']);
+    '-v', `${OUT}:/results`, ...(ARMS[arm].mounts || []).flatMap((m) => ['-v', m]), '-w', '/app', ...envArgs, IMAGE, 'node', 'harness/src/session.js'], onLine);
 }
 const lastJson = (text) => { const l = text.split('\n').reverse().find((x) => x.trim().startsWith('{')); try { return l ? JSON.parse(l) : null; } catch { return null; } };
 
@@ -184,7 +192,7 @@ for (const p of plan) {
   try {
     down(p.arm);
     rec.marks.upStart = Date.now();
-    const up = sh('docker', ['compose', ...A.compose, 'up', '-d']);
+    const up = sh('docker', ['compose', ...A.compose, 'up', '-d'], p.arm === 'B' && cfg.censor ? { CENSOR_CENTRES: cfg.censor } : null);
     if (!up.ok) { discard('compose up failed', { err: up.err.slice(-500) }); down(p.arm); continue; }
     let ready = false;
     const deadline = Date.now() + cfg.readyTimeoutS * 1000;
@@ -202,8 +210,22 @@ for (const p of plan) {
     const storageBefore = await storageOf(A.servers);
     const sampler = startSampler(A.servers, cfg.sampleMs);
     rec.marks.sessionStart = Date.now();
-    const faultEnv = Object.fromEntries(Object.entries({ TEST_ID: cfg.test, TRUSTEES_PRESENT: cfg.present, FAULT: cfg.fault, TIMEOUT_MS: cfg.timeoutMs }).filter(([, v]) => v != null));
-    const s = await session(p.arm, p.runId, p.seed, '.', faultEnv);
+    const faultEnv = Object.fromEntries(Object.entries({ TEST_ID: cfg.test, TRUSTEES_PRESENT: cfg.present, FAULT: cfg.fault, TIMEOUT_MS: cfg.timeoutMs, CENSORED: cfg.censor }).filter(([, v]) => v != null));
+    // F7: kill one replica at T0 of the measured session (T0 comes from the session's setup-done line)
+    let killTimer = null;
+    const onLine = !cfg.killAtT0 ? null : (line) => {
+      let m; try { m = JSON.parse(line); } catch { return; }
+      if (m?.event !== 'setup-done' || rec.kill) return;
+      rec.kill = { container: A.killTarget, plannedAtMs: m.t0Ms, t0Ms: m.t0Ms };
+      killTimer = setTimeout(async () => {
+        rec.kill.startedAtMs = Date.now();
+        const k = await shAsync('docker', ['kill', A.killTarget]);
+        rec.kill.killedAtMs = Date.now(); rec.kill.ok = k.ok; if (!k.ok) rec.kill.err = k.err.slice(-300);
+      }, Math.max(0, m.t0Ms - Date.now()));
+    };
+    const s = await session(p.arm, p.runId, p.seed, '.', faultEnv, onLine);
+    if (killTimer && !rec.kill?.startedAtMs) { clearTimeout(killTimer); rec.kill.ok = false; rec.kill.err = 'session ended before T0'; }
+    while (rec.kill?.startedAtMs && rec.kill.killedAtMs == null) await sleep(100);
     rec.marks.sessionEnd = Date.now();
     const resources = await sampler.stop();
     const storageAfter = await storageOf(A.servers);

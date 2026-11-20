@@ -1,6 +1,6 @@
 // Arm A plumbing: providers, test accounts, contract deployment and exam registration.
 import { readFileSync } from 'node:fs';
-import { JsonRpcProvider, Wallet, ContractFactory, Contract } from 'ethers';
+import { JsonRpcProvider, Wallet, ContractFactory, Contract, FetchRequest } from 'ethers';
 
 const here = (p) => new URL(p, import.meta.url);
 export const artifact = JSON.parse(readFileSync(here('../build/ExamRelease.json'), 'utf8'));
@@ -12,8 +12,14 @@ export const rpcUrls = process.env.RPC_URLS ? process.env.RPC_URLS.split(',') : 
 // Zero-fee private network: legacy transactions with gasPrice 0 (node runs with --min-gas-price=0).
 export const TX = { type: 0, gasPrice: 0n };
 
+// Per-request timeout, same as Arm B's etcd client (EtcdStore, 2 s): a request to a crashed or silent node
+// fails after RPC_TIMEOUT_MS instead of ethers' default 300 s, so clients can fail over (F6/F7).
+export const RPC_TIMEOUT_MS = Number(process.env.RPC_TIMEOUT_MS ?? 2000);
+
 export function makeProvider(url) {
-  const p = new JsonRpcProvider(url, network.chainId, { staticNetwork: true });
+  const req = new FetchRequest(url);
+  req.timeout = RPC_TIMEOUT_MS;
+  const p = new JsonRpcProvider(req, network.chainId, { staticNetwork: true });
   p.pollingInterval = 250;
   return p;
 }

@@ -3,6 +3,9 @@
 // TRUSTEES_PRESENT (e.g. "0,2,4"), RETRY_MS, OUT_DIR, ENDPOINT (B/C service URL), RPC_URLS (A).
 // Optional fault injection (design Section 8): FAULT = corrupt-share (F3) | early-submit (F4); TEST_ID labels
 // the record. With FAULT unset the session behaves exactly as before.
+// CENSORED (e.g. "0,10,20,30,40", F6): centres refused by the operator they normally use. In A their own node
+// refuses them (unreachable endpoint) and they fall back to the other validators; in B the coordinator itself
+// refuses them (its CENSOR_CENTRES is set by the scheduler), so here it is only recorded.
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import {
@@ -28,6 +31,7 @@ const cfg = {
   endpoint: env.ENDPOINT,
   fault: env.FAULT || null,
   testId: env.TEST_ID || null,
+  censored: env.CENSORED ? env.CENSORED.split(',').map(Number) : [],
 };
 if (!['A', 'B', 'C'].includes(cfg.arm)) throw new Error('ARM must be A, B or C');
 if (![null, 'corrupt-share', 'early-submit'].includes(cfg.fault)) throw new Error('FAULT must be corrupt-share or early-submit');
@@ -88,7 +92,13 @@ if (cfg.arm === 'C') {
   const meta = { t0Ms, k: cfg.k, n: cfg.n, commitments };
   const trusteeAccounts = Array.from({ length: cfg.n }, (_, i) => 1 + i);
   await chain.registerExam(address, registrar, examId, meta, trusteeAccounts);
-  fetcherFor = (i) => a.shareFetcher([urls[i % urls.length]], address, examId, meta);
+  // Each centre reads from its own node first and fails over to the other validators (Section 5: centres read
+  // the chain directly). Until 2026-11-20 only the own node was passed; with all nodes up the behaviour is the same.
+  const nodeList = (i) => urls.map((_, j) => urls[(i + j) % urls.length]);
+  // F6: the centre's own node refuses it. A closed local port refuses at once; an unresolvable host name made
+  // every poll wait on DNS and slowed all centres through Node's shared resolver threads (smoke 2026-11-20).
+  const CENSOR_URL = 'http://127.0.0.1:1';
+  fetcherFor = (i) => a.shareFetcher(cfg.censored.includes(i) ? [CENSOR_URL, ...nodeList(i).slice(1)] : nodeList(i), address, examId, meta);
   submitAt = () => Promise.all(present.map(async (i) => {
     const sentAtMs = nowMs();
     const r = await a.submitWhenAllowed(address, chain.wallet(1 + i, urls[i % urls.length]), examId, i, shares[i], { retryMs: cfg.retryMs, timeoutMs: cfg.timeoutMs });
@@ -110,6 +120,7 @@ if (cfg.arm === 'C') {
   };
 }
 marks.setupDone = nowMs();
+console.log(JSON.stringify({ event: 'setup-done', t0Ms })); // lets the scheduler act at T0 (F7)
 const setupOverran = marks.setupDone >= t0Ms; // harness error before T0 -> run is discarded (design Section 6)
 
 // 4. Centres start polling now with a fixed, seeded phase offset in [0, POLL_MS), so their polls are

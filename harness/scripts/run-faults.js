@@ -12,6 +12,8 @@ const TESTS = {
   F2: { group: 1, seed0: 3200, args: ['--present', '0,1', '--timeout-ms', '60000'] }, // n - k + 1 = 3 absent; wait to T0 + 60 s
   F3: { group: 1, seed0: 3300, args: ['--fault', 'corrupt-share'] },                 // one corrupted (validly signed) share
   F4: { group: 1, seed0: 3400, args: ['--fault', 'early-submit'] },                  // one submission at T0 - 5 s
+  F6: { group: 3, seed0: 3600, args: ['--censor', '0,10,20,30,40'] },                // 5 of 50 centres censored
+  F7: { group: 3, seed0: 3700, args: ['--kill-at-t0'] },                             // 1 replica killed at T0
 };
 
 const argv = process.argv.slice(2);

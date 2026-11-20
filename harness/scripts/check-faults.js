@@ -22,6 +22,13 @@ const CRITERIA = {
   F2: (r) => [r.config.present.length === r.config.k - 1, // n - k + 1 absent = k - 1 present
     r.summary.okCentres === 0, r.summary.alert === 'insufficient shares'],
   F3: (r) => [r.fault?.type === 'corrupt-share', r.config.arm === 'B' ? rejectedB(r.fault, 422) : rejectedA(r.fault), allGotKey(r)],
+  // F6: every censored centre still gets the correct key within 60 s of T0 (the others too).
+  F6: (r) => [r.config.censored?.length === 5,
+    r.config.censored.every((c) => { const x = r.centres.find((y) => y.centreId === c); return x?.ok === true && x.latencyMs <= 60_000; }),
+    allGotKey(r)],
+  // F7: the replica was really killed at T0 (within 1 s after it) and the release still completed for every centre.
+  // Kill command issued within 1 s after T0 and confirmed by Docker (docker kill itself can take ~0.7 s to return).
+  F7: (r, res) => [res?.kill?.ok === true, res.kill.startedAtMs >= r.t0Ms && res.kill.startedAtMs - r.t0Ms <= 1000, allGotKey(r)],
   F4: (r) => [r.fault?.type === 'early-submit', r.config.arm === 'B' ? rejectedB(r.fault, 425) : rejectedA(r.fault),
     r.config.arm === 'A' ? r.fault?.blockTimestamp != null && r.fault.blockTimestamp * 1000 < r.t0Ms : r.fault?.sentAtMs < r.t0Ms,
     allGotKey(r)],
@@ -32,7 +39,8 @@ for (const f of readdirSync(DIR).filter((x) => x.endsWith('.json') && !x.endsWit
   const r = JSON.parse(readFileSync(join(DIR, f), 'utf8'));
   const id = r.config.testId;
   if (!CRITERIA[id] || r.summary.setupOverran) continue;
-  const checks = [...CRITERIA[id](r), common(r)];
+  let res = null; try { res = JSON.parse(readFileSync(join(DIR, f.replace(/\.json$/, '.resources.json')), 'utf8')); } catch { /* not needed for F1-F6 */ }
+  const checks = [...CRITERIA[id](r, res), common(r)];
   const key = `${id} ${r.config.arm}`;
   (rows[key] ??= { test: id, arm: r.config.arm, valid: 0, passed: 0, failedRuns: [] }).valid++;
   if (checks.every(Boolean)) rows[key].passed++; else rows[key].failedRuns.push({ run: r.config.runId, checks });
