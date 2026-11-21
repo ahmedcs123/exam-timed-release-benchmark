@@ -9,4 +9,9 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/* \
  && test -f /usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1 \
  && dpkg-query -W -f='${Package} ${Version}\n' faketime libfaketime | tee /faketime-version.txt
+# Besu's start script replaces LD_PRELOAD with libjemalloc.so before it starts the JVM (seen 2026-11-21: the JVM's
+# environment had LD_PRELOAD=libjemalloc.so and libfaketime was not mapped). /etc/ld.so.preload is read by the dynamic
+# loader for every process whatever LD_PRELOAD says, so libfaketime is loaded into the JVM too. FAKETIME (set only
+# in f5-skew.override.yml) gives the offset; without FAKETIME the library changes nothing.
+RUN echo /usr/lib/x86_64-linux-gnu/faketime/libfaketimeMT.so.1 > /etc/ld.so.preload
 USER ${RUN_AS}

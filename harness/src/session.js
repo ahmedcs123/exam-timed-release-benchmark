@@ -251,7 +251,7 @@ if (cfg.fault === 'tamper-record') faultP = (async () => { await centresP; await
 // the distinct results seen, and when the share was first accepted.
 if (cfg.trusteeMode === 'eager') {
   const eagerP = Promise.all(present.map(async (i) => {
-    let attempts = 0, beforeT0 = 0, acceptedAtMs = null, firstSentAtMs = null;
+    let attempts = 0, beforeT0 = 0, acceptedAtMs = null, firstSentAtMs = null, storedByEarlierAttemptAtMs = null;
     const results = {};
     while (nowMs() < t0Ms + cfg.timeoutMs) {
       let at;
@@ -259,9 +259,11 @@ if (cfg.trusteeMode === 'eager') {
       attempts++; firstSentAtMs ??= at.sentAtMs; if (at.sentAtMs < t0Ms) beforeT0++;
       results[at.result] = (results[at.result] || 0) + 1;
       if (at.accepted) { acceptedAtMs = nowMs(); break; }
+      // An earlier attempt was in fact stored although its reply was lost (e.g. RPC timeout while waiting): stop.
+      if (at.result === 'AlreadySubmitted' || at.result === 409) { storedByEarlierAttemptAtMs = nowMs(); break; }
       await sleep(cfg.retryMs);
     }
-    return { index: i, ok: acceptedAtMs != null, mode: 'eager', attempts, attemptsBeforeT0: beforeT0, results, acceptedAtMs, sentAtMs: firstSentAtMs, doneAtMs: nowMs() };
+    return { index: i, ok: acceptedAtMs != null || storedByEarlierAttemptAtMs != null, mode: 'eager', attempts, attemptsBeforeT0: beforeT0, results, acceptedAtMs, storedByEarlierAttemptAtMs, sentAtMs: firstSentAtMs, doneAtMs: nowMs() };
   }));
   submitAt = () => eagerP;
 }

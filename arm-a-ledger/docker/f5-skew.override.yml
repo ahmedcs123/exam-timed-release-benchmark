@@ -6,7 +6,12 @@ services:
     environment:
       # Multi-threaded variant: the JVM is multi-threaded. With the single-threaded libfaketime.so.1 the shell in the
       # container was 30 s ahead but Besu's own (JVM) log times were not (smoke 2026-11-20).
-      LD_PRELOAD: /usr/lib/x86_64-linux-gnu/faketime/libfaketimeMT.so.1
+      # Not used any more: Besu's start script overwrites LD_PRELOAD; the image loads libfaketime via /etc/ld.so.preload.
+      # LD_PRELOAD: /usr/lib/x86_64-linux-gnu/faketime/libfaketimeMT.so.1
       FAKETIME: "+${CLOCK_SKEW_S:-30}s"
+      # Besu's start script tests jemalloc with `LD_PRELOAD=libjemalloc.so sh -c true`; with libfaketime also loaded
+      # that test hangs (seen 2026-11-21: process `sh -c true` stuck, Besu never started). F5 measures safety only, so
+      # besu4 runs with the system allocator here instead of jemalloc.
+      BESU_USING_JEMALLOC: "false"
       FAKETIME_DONT_FAKE_MONOTONIC: "1"
       FAKETIME_DONT_RESET: "1"
