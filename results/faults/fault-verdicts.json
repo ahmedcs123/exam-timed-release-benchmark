@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-20T20:29:49.962Z",
+  "date": "2026-11-21T21:06:13.990Z",
   "required": 10,
   "results": [
     {
@@ -65,6 +65,113 @@
       "passed": 10,
       "failedRuns": [],
       "verdict": "PASS"
+    },
+    {
+      "test": "F5",
+      "arm": "A",
+      "valid": 10,
+      "passed": 10,
+      "failedRuns": [],
+      "verdict": "PASS"
+    },
+    {
+      "test": "F5",
+      "arm": "B",
+      "valid": 10,
+      "passed": 0,
+      "failedRuns": [
+        {
+          "run": "faults-F5-b001-B",
+          "checks": [
+            true,
+            true,
+            false,
+            false
+          ]
+        },
+        {
+          "run": "faults-F5-b002-B",
+          "checks": [
+            true,
+            true,
+            false,
+            false
+          ]
+        },
+        {
+          "run": "faults-F5-b003-B",
+          "checks": [
+            true,
+            true,
+            false,
+            false
+          ]
+        },
+        {
+          "run": "faults-F5-b004-B",
+          "checks": [
+            true,
+            true,
+            false,
+            false
+          ]
+        },
+        {
+          "run": "faults-F5-b005-B",
+          "checks": [
+            true,
+            true,
+            false,
+            false
+          ]
+        },
+        {
+          "run": "faults-F5-b006-B",
+          "checks": [
+            true,
+            true,
+            false,
+            false
+          ]
+        },
+        {
+          "run": "faults-F5-b007-B",
+          "checks": [
+            true,
+            true,
+            false,
+            false
+          ]
+        },
+        {
+          "run": "faults-F5-b008-B",
+          "checks": [
+            true,
+            true,
+            false,
+            false
+          ]
+        },
+        {
+          "run": "faults-F5-b009-B",
+          "checks": [
+            true,
+            true,
+            false,
+            false
+          ]
+        },
+        {
+          "run": "faults-F5-b010-B",
+          "checks": [
+            true,
+            true,
+            false,
+            false
+          ]
+        }
+      ],
+      "verdict": "FAIL"
     },
     {
       "test": "F6",

@@ -1,0 +1,170 @@
+{
+  "schema": 1,
+  "block": 4,
+  "pos": 0,
+  "arm": "A",
+  "seed": 3504,
+  "runId": "faults-F5-b004-A",
+  "phase": "faults",
+  "git": {
+    "commit": "ee1ed34d92449db5258e53a2882df45b1c1acd43",
+    "dirty": false
+  },
+  "imageId": "sha256:39da1b5dcca936376b7c2fdd54a829a7b9cebba8a227d9dc7978c9e024ee5c5f",
+  "cell": {
+    "m": 50,
+    "k": 3,
+    "n": 5,
+    "pollMs": 500,
+    "examSize": "5MB"
+  },
+  "marks": {
+    "upStart": 1795292215204,
+    "ready": 1795292415070,
+    "sessionStart": 1795292441240,
+    "sessionEnd": 1795292495763
+  },
+  "readySeconds": 199.866,
+  "skewCheck": {
+    "arm": "A",
+    "wantS": 30,
+    "besu4": {
+      "lines": 60,
+      "medianS": 29.999,
+      "samples": [
+        "2026-11-21T20:19:47.372991044Z 2026-11-21 20:20:17.372+0000 | EthScheduler-Workers-3 | INFO  | PersistBlockTask | Block ",
+        "2026-11-21T20:19:47.374620867Z 2026-11-21 20:20:17.373+0000 | EthScheduler-Workers-3 | INFO  | BlockPropagationManager |"
+      ]
+    },
+    "besu1": {
+      "lines": 60,
+      "medianS": -0.001,
+      "samples": [
+        "2026-11-21T20:18:16.095409709Z 2026-11-21 20:18:16.093+0000 | BftProcessorExecutor-QBFT-0 | INFO  | QbftBesuControllerBu",
+        "2026-11-21T20:18:18.125592921Z 2026-11-21 20:18:18.122+0000 | BftProcessorExecutor-QBFT-0 | INFO  | QbftBesuControllerBu"
+      ]
+    },
+    "ok": true
+  },
+  "warmup": {
+    "ok": true,
+    "summary": {
+      "file": "/results/warmup/faults-F5-b004-A-warmup.json",
+      "arm": "A",
+      "L50": 4743,
+      "L95": 5580,
+      "Lmax": 8269,
+      "completion60s": 1,
+      "earlyCount": 0,
+      "okCentres": 50,
+      "setupOverran": false,
+      "decryptOracleOk": true,
+      "acceptedShares": 4,
+      "alert": null
+    }
+  },
+  "session": {
+    "ok": true,
+    "summary": {
+      "file": "/results/./faults-F5-b004-A.json",
+      "arm": "A",
+      "L50": 712,
+      "L95": 4061,
+      "Lmax": 4789,
+      "completion60s": 1,
+      "earlyCount": 0,
+      "okCentres": 50,
+      "setupOverran": false,
+      "decryptOracleOk": true,
+      "acceptedShares": 5,
+      "alert": null
+    },
+    "file": "faults-F5-b004-A.json"
+  },
+  "resources": {
+    "perContainer": {
+      "etr-besu1": {
+        "samples": 109,
+        "errors": 0,
+        "cpuSeconds": 23.705628,
+        "memMaxBytes": 407994368,
+        "intervalMeanMs": 503.6666666666667,
+        "intervalMaxMs": 533
+      },
+      "etr-besu2": {
+        "samples": 109,
+        "errors": 0,
+        "cpuSeconds": 22.617193,
+        "memMaxBytes": 400805888,
+        "intervalMeanMs": 503.712962962963,
+        "intervalMaxMs": 532
+      },
+      "etr-besu3": {
+        "samples": 109,
+        "errors": 0,
+        "cpuSeconds": 24.463483,
+        "memMaxBytes": 412360704,
+        "intervalMeanMs": 503.64814814814815,
+        "intervalMaxMs": 533
+      },
+      "etr-besu4": {
+        "samples": 109,
+        "errors": 0,
+        "cpuSeconds": 54.339727,
+        "memMaxBytes": 378363904,
+        "intervalMeanMs": 503.6111111111111,
+        "intervalMaxMs": 538
+      }
+    },
+    "cpuSecondsTotal": 125.12603100000001,
+    "memMaxBytesSum": 1599524864,
+    "samplerErrors": 0
+  },
+  "storage": {
+    "before": {
+      "etr-besu1": {
+        "sizeRwBytes": 117837824,
+        "volumes": [],
+        "totalBytes": 117837824
+      },
+      "etr-besu2": {
+        "sizeRwBytes": 117538816,
+        "volumes": [],
+        "totalBytes": 117538816
+      },
+      "etr-besu3": {
+        "sizeRwBytes": 117645312,
+        "volumes": [],
+        "totalBytes": 117645312
+      },
+      "etr-besu4": {
+        "sizeRwBytes": 118579200,
+        "volumes": [],
+        "totalBytes": 118579200
+      }
+    },
+    "after": {
+      "etr-besu1": {
+        "sizeRwBytes": 119357440,
+        "volumes": [],
+        "totalBytes": 119357440
+      },
+      "etr-besu2": {
+        "sizeRwBytes": 118947840,
+        "volumes": [],
+        "totalBytes": 118947840
+      },
+      "etr-besu3": {
+        "sizeRwBytes": 119066624,
+        "volumes": [],
+        "totalBytes": 119066624
+      },
+      "etr-besu4": {
+        "sizeRwBytes": 120049664,
+        "volumes": [],
+        "totalBytes": 120049664
+      }
+    },
+    "growthBytes": 5820416
+  }
+}
