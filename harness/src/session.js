@@ -34,6 +34,8 @@ const cfg = {
   fault: env.FAULT || null,
   testId: env.TEST_ID || null,
   trusteeMode: env.TRUSTEE_MODE || 'at-t0', // 'eager' (F5): trustees try from setup on and retry until accepted
+  jitterMaxMs: Number(env.JITTER_MAX_MS || 0), // sensitivity cell: each trustee submits at T0 + U(0, JITTER_MAX_MS)
+  bgLoadRps: Number(env.BG_LOAD_RPS || 0),     // sensitivity cell: open-loop Poisson unrelated writes per second
   censored: env.CENSORED ? env.CENSORED.split(',').map(Number) : [],
 };
 if (!['A', 'B', 'C'].includes(cfg.arm)) throw new Error('ARM must be A, B or C');
@@ -63,6 +65,11 @@ let faultOps = null; // per-arm single submission used only by fault injection
 let g1Op = null;     // per-arm attempt by one admin to replace the trustee set (G1)
 let tamperOp = null; // per-arm tampering with the submission record + independent audit (F8)
 let eagerOnce = null; // per-arm single honest submission attempt for eager trustees (F5)
+let submitOne = null; // per-arm honest submission of one trustee at its time (jitter cell)
+let bgWrite = null;   // per-arm single unrelated write to the same storage layer (background-load cell)
+// Seeded PRNG (mulberry32): jitter values and background-load arrival times depend only on the seed, so the
+// A and B runs of a pair get exactly the same ones.
+const prng = (a) => () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
 if (cfg.arm === 'C') {
   const c = await import('../../arm-c-central/src/client.js');
   await c.registerExam(cfg.endpoint, examId, key, t0Ms);
@@ -133,6 +140,20 @@ if (cfg.arm === 'C') {
   };
   // F5: one honest, validly signed attempt; the coordinator's own clock decides whether it is too early.
   eagerOnce = async (i) => { const sentAtMs = nowMs(); const status = await b.submitShare(cfg.endpoint, examId, i, shares[i], trustees[i].privateKey); return { accepted: status === 201, result: status, sentAtMs }; };
+  // Jitter cell: the same per-trustee behaviour as the normal submission above, for one trustee.
+  submitOne = async (i) => {
+    const sentAtMs = nowMs(); let attempts = 0, status;
+    do { attempts++; status = await b.submitShare(cfg.endpoint, examId, i, shares[i], trustees[i].privateKey); if (status !== 425) break; await sleep(cfg.retryMs); } while (nowMs() < t0Ms + cfg.timeoutMs);
+    return { index: i, ok: status === 201, status, attempts, sentAtMs, doneAtMs: nowMs() };
+  };
+  // Background-load cell: one unrelated write (64 random bytes under its own key) straight to etcd, round-robin
+  // over the 3 members - the storage layer where B keeps the shares.
+  const etcdEps = (env.ETCD_LOAD_URLS || 'http://etcd1:2379,http://etcd2:2379,http://etcd3:2379').split(',');
+  bgWrite = async (seq) => {
+    const b64 = (x) => Buffer.from(x).toString('base64');
+    const r = await fetch(`${etcdEps[seq % etcdEps.length]}/v3/kv/put`, { method: 'POST', body: JSON.stringify({ key: b64(`load/${examId}/${seq}`), value: b64(randomUUID().repeat(2).slice(0, 64)) }), signal: AbortSignal.timeout(5000) });
+    await r.arrayBuffer(); return r.ok;
+  };
 } else {
   const chain = await import('../../arm-a-ledger/src/chain.js');
   const a = await import('../../arm-a-ledger/src/client.js');
@@ -210,6 +231,25 @@ if (cfg.arm === 'C') {
     const r = await a.submitShare(address, eagerWallets[i], examId, i, shares[i]);
     return { accepted: r.ok === true, result: r.ok ? 'ok' : r.reason, sentAtMs };
   };
+  // Jitter cell: the same per-trustee behaviour as the normal submission above, for one trustee.
+  submitOne = async (i) => {
+    const sentAtMs = nowMs();
+    const r = await a.submitWhenAllowed(address, chain.wallet(1 + i, urls[i % urls.length]), examId, i, shares[i], { retryMs: cfg.retryMs, timeoutMs: cfg.timeoutMs });
+    return { index: i, ok: r.ok, reason: r.reason ?? null, gasUsed: r.gasUsed ? Number(r.gasUsed) : null, attempts: r.attempts, sentAtMs, doneAtMs: nowMs() };
+  };
+  // Background-load cell: one unrelated write = a value transfer (a state change on the chain, the storage layer
+  // where A keeps the shares). Accounts 1+n .. 4+n (unused as trustees when n = 5), one per node, local nonces;
+  // open loop: the transaction is sent without waiting for it to be mined.
+  // Created only in the background-load cell (n = 5): with n = 9 accounts 10..13 do not exist (smoke 2026-11-22).
+  const loadWallets = cfg.bgLoadRps > 0 ? urls.map((u, j) => chain.wallet(1 + cfg.n + j, u)) : [];
+  const loadNonce = {};
+  bgWrite = async (seq) => {
+    const j = seq % loadWallets.length, w = loadWallets[j];
+    loadNonce[j] ??= w.provider.getTransactionCount(w.address, 'pending');
+    const nonce = await loadNonce[j]; loadNonce[j] = Promise.resolve(nonce + 1);
+    await w.sendTransaction({ to: chain.accounts[0].address, value: 1n, nonce, gasLimit: 21_000n, ...chain.TX });
+    return true;
+  };
 }
 marks.setupDone = nowMs();
 console.log(JSON.stringify({ event: 'setup-done', t0Ms })); // lets the scheduler act at T0 (F7)
@@ -267,9 +307,32 @@ if (cfg.trusteeMode === 'eager') {
   }));
   submitAt = () => eagerP;
 }
+// Jitter cell: trustee i submits at T0 + U_i, U_i ~ Uniform(0, JITTER_MAX_MS) from the seeded PRNG.
+const jitterMs = Object.fromEntries(present.map((i) => [i, Math.floor(prng(cfg.seed * 1000 + i)() * cfg.jitterMaxMs)]));
+if (cfg.jitterMaxMs > 0) submitAt = () => Promise.all(present.map(async (i) => { await sleep(jitterMs[i]); return { ...(await submitOne(i)), jitterMs: jitterMs[i] }; }));
+// Background-load cell: open-loop Poisson arrivals at BG_LOAD_RPS from setup until every centre is done.
+const bg = { rps: cfg.bgLoadRps, sent: 0, ok: 0, errors: 0, firstError: null, startedAtMs: null, stoppedAtMs: null };
+let bgStop = false;
+const bgP = cfg.bgLoadRps > 0 ? (async () => {
+  const rnd = prng(cfg.seed * 7919 + 17), pending = [];
+  bg.startedAtMs = nowMs();
+  // Arrival times are absolute (start + sum of exponential gaps), so a busy event loop delays writes but does not
+  // lower the rate (smoke 2026-11-22: relative sleeps gave 16.5/s instead of 20/s in A).
+  let nextAt = nowMs();
+  for (let seq = 0; !bgStop; seq++) {
+    nextAt += -Math.log(1 - rnd()) * 1000 / cfg.bgLoadRps;
+    await sleep(Math.max(0, nextAt - nowMs()));
+    if (bgStop) break;
+    bg.sent++;
+    pending.push(bgWrite(seq).then((ok) => { if (ok) bg.ok++; else bg.errors++; }, (e) => { bg.errors++; bg.firstError ??= String(e.code || e.message).slice(0, 80); }));
+  }
+  bg.stoppedAtMs = nowMs();
+  await Promise.all(pending);
+})() : Promise.resolve();
 await sleep(Math.max(0, t0Ms - nowMs()));
 const trustees = await submitAt();
 const centres = await centresP;
+bgStop = true; await bgP;
 const fault = await faultP;
 marks.end = nowMs();
 
@@ -296,6 +359,8 @@ summary.acceptedShares = cfg.arm === 'C' ? null : trustees.filter((t) => t.ok).l
 summary.alert = cfg.arm !== 'C' && summary.okCentres === 0 && summary.acceptedShares < cfg.k ? 'insufficient shares' : null;
 const record = { schema: 1, config: { ...cfg, present }, examId, t0Ms, marks, summary, trustees, centres };
 record.fault = fault;
+if (cfg.bgLoadRps > 0) record.backgroundLoad = bg;
+if (cfg.jitterMaxMs > 0) record.jitterMs = jitterMs;
 mkdirSync(cfg.outDir, { recursive: true });
 const file = `${cfg.outDir}/${cfg.runId}.json`;
 writeFileSync(file, JSON.stringify(record, null, 2));

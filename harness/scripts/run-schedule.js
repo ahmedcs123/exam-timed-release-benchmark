@@ -39,6 +39,9 @@ const cfg = {
   test: opt('test', null), present: opt('present', null), fault: opt('fault', null), timeoutMs: opt('timeout-ms', null),
   censor: opt('censor', null), killAtT0: flag('kill-at-t0'),
   clockSkewMs: Number(opt('clock-skew-ms', 0)), trusteeMode: opt('trustee-mode', null), t0DelayMs: opt('t0-delay-ms', null),
+  // Sensitivity cells (design Section 6): trustee jitter, background load, block period (A only); --resume skips runs
+  // whose record already exists in the output folder (so a schedule can be continued on another night).
+  jitterMaxMs: opt('jitter-max-ms', null), bgRps: opt('bg-rps', null), blockPeriod: Number(opt('block-period', 2)), resume: flag('resume'),
 };
 if (!['smoke', 'pilot', 'raw', 'faults'].includes(cfg.phase)) throw new Error('--phase must be smoke, pilot, raw or faults');
 if (cfg.arms.some((a) => !['A', 'B', 'C'].includes(a))) throw new Error('--arms takes A, B and/or C');
@@ -224,13 +227,27 @@ for (const p of plan) {
   const A = ARMS[p.arm];
   const rec = { schema: 1, ...p, phase: cfg.phase, git, imageId, cell: { m: cfg.m, k: cfg.k, n: cfg.n, pollMs: cfg.pollMs, examSize: cfg.examSize }, marks: {} };
   const discard = (reason, extra = {}) => { log({ event: 'discard', runId: p.runId, arm: p.arm, block: p.block, reason, ...extra }); };
+  // --resume: skip only runs that finished and were kept (the resources record is written last; a discarded or
+  // interrupted run has no complete record and is run again).
+  if (cfg.resume) {
+    let done = false;
+    try { const prev = JSON.parse(readFileSync(join(OUT, `${p.runId}.resources.json`), 'utf8')); done = prev.session?.ok === true && prev.session?.summary != null && !prev.session.summary.setupOverran; } catch { /* no record */ }
+    if (done) { log({ event: 'skip-existing', runId: p.runId }); continue; }
+  }
   try {
     down(p.arm);
     rec.marks.upStart = Date.now();
     // F5: B's coordinator gets CLOCK_SKEW_MS; A's besu4 runs the libfaketime image (extra compose file)
     const upEnv = { ...(p.arm === 'B' && cfg.censor ? { CENSOR_CENTRES: cfg.censor } : {}),
       ...(cfg.clockSkewMs ? (p.arm === 'B' ? { CLOCK_SKEW_MS: String(cfg.clockSkewMs) } : { CLOCK_SKEW_S: String(Math.round(cfg.clockSkewMs / 1000)) }) : {}) };
-    const upFiles = p.arm === 'A' && cfg.clockSkewMs ? [...A.compose.slice(0, 2), '-f', 'arm-a-ledger/docker/f5-skew.override.yml', ...A.compose.slice(2)] : A.compose;
+    let upFiles = p.arm === 'A' && cfg.clockSkewMs ? [...A.compose.slice(0, 2), '-f', 'arm-a-ledger/docker/f5-skew.override.yml', ...A.compose.slice(2)] : A.compose;
+    // Block-period cell (A only): extra compose file that mounts the genesis with the other block period
+    if (p.arm === 'A' && cfg.blockPeriod !== 2) {
+      const bpFile = `arm-a-ledger/network/generated/bp${cfg.blockPeriod}.override.yml`;
+      if (!existsSync(join(ROOT, bpFile))) sh('node', ['arm-a-ledger/scripts/gen-block-period.js', String(cfg.blockPeriod)]);
+      if (!existsSync(join(ROOT, bpFile))) { discard(`missing ${bpFile}`); continue; }
+      upFiles = [...upFiles.slice(0, 2), '-f', bpFile, ...upFiles.slice(2)];
+    }
     const up = sh('docker', ['compose', ...upFiles, 'up', '-d'], Object.keys(upEnv).length ? upEnv : null);
     if (!up.ok) { discard('compose up failed', { err: up.err.slice(-500) }); down(p.arm); continue; }
     let ready = false;
@@ -239,6 +256,22 @@ for (const p of plan) {
     rec.marks.ready = Date.now();
     rec.readySeconds = (rec.marks.ready - rec.marks.upStart) / 1000;
     if (!ready) { discard(`not ready after ${cfg.readyTimeoutS} s (harness error before T0)`); down(p.arm); continue; }
+    // Block-period check (every A run): median gap between the timestamps of the last 7 blocks must equal the
+    // configured period (+/- 0.5 s); a run where it does not is a harness error before T0.
+    if (p.arm === 'A') {
+      try {
+        const u = 'http://127.0.0.1:18545';
+        let head = parseInt(await rpc(u, 'eth_blockNumber'), 16);
+        for (let w = 0; head < 4 && w < 60; w++) { await sleep(1000); head = parseInt(await rpc(u, 'eth_blockNumber'), 16); }
+        const ts = [];
+        // block 0 (genesis, timestamp 0) is excluded
+        for (let b = Math.max(1, head - 6); b <= head; b++) ts.push(parseInt((await rpc(u, 'eth_getBlockByNumber', [`0x${b.toString(16)}`, false])).timestamp, 16));
+        const gaps = ts.slice(1).map((t, i) => t - ts[i]).sort((x, y) => x - y);
+        const medianS = gaps.length ? gaps[Math.floor(gaps.length / 2)] : null;
+        rec.blockPeriodCheck = { wantS: cfg.blockPeriod, gaps, medianS, ok: medianS != null && Math.abs(medianS - cfg.blockPeriod) <= 0.5 };
+      } catch (e) { rec.blockPeriodCheck = { wantS: cfg.blockPeriod, ok: false, err: String(e.message) }; }
+      if (!rec.blockPeriodCheck.ok) { discard('block period not in effect (harness error before T0)', { blockPeriodCheck: rec.blockPeriodCheck }); down(p.arm); continue; }
+    }
     if (cfg.clockSkewMs) {
       rec.skewCheck = skewCheck(p.arm, cfg.clockSkewMs);
       if (!rec.skewCheck.ok) { discard('clock skew not in effect (harness error before T0)', { skewCheck: rec.skewCheck }); down(p.arm); continue; }
@@ -253,7 +286,7 @@ for (const p of plan) {
     const storageBefore = await storageOf(A.servers);
     const sampler = startSampler(A.servers, cfg.sampleMs);
     rec.marks.sessionStart = Date.now();
-    const faultEnv = Object.fromEntries(Object.entries({ TEST_ID: cfg.test, TRUSTEES_PRESENT: cfg.present, FAULT: cfg.fault, TIMEOUT_MS: cfg.timeoutMs, CENSORED: cfg.censor, TRUSTEE_MODE: cfg.trusteeMode, T0_DELAY_MS: cfg.t0DelayMs }).filter(([, v]) => v != null));
+    const faultEnv = Object.fromEntries(Object.entries({ TEST_ID: cfg.test, TRUSTEES_PRESENT: cfg.present, FAULT: cfg.fault, TIMEOUT_MS: cfg.timeoutMs, CENSORED: cfg.censor, TRUSTEE_MODE: cfg.trusteeMode, T0_DELAY_MS: cfg.t0DelayMs, JITTER_MAX_MS: cfg.jitterMaxMs, BG_LOAD_RPS: cfg.bgRps }).filter(([, v]) => v != null));
     // F7: kill one replica at T0 of the measured session (T0 comes from the session's setup-done line)
     let killTimer = null;
     const onLine = !cfg.killAtT0 ? null : (line) => {
