@@ -1,0 +1,6 @@
+# Helper image for the exploratory network-delay cell (NET50): only the tc tool. It is run with
+# --net container:<server> --cap-add NET_ADMIN to add a netem qdisc inside a server container's network namespace.
+# Build once from the repo root:  docker build -f harness/docker/Dockerfile.netem -t etr-netem:dev .
+# The image ID is recorded in every run record (rec.netDelay.image).
+FROM alpine:3.20
+RUN apk add --no-cache iproute2

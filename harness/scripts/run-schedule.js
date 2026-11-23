@@ -42,8 +42,11 @@ const cfg = {
   // Sensitivity cells (design Section 6): trustee jitter, background load, block period (A only); --resume skips runs
   // whose record already exists in the output folder (so a schedule can be continued on another night).
   jitterMaxMs: opt('jitter-max-ms', null), bgRps: opt('bg-rps', null), blockPeriod: Number(opt('block-period', 2)), resume: flag('resume'),
+  // Exploratory network-delay cell (added 2026-11-23, after the main runs; see docs/DEVIATIONS.md): tc netem delay on
+  // the egress of every server container of the arm. Off unless given, so all earlier runs are unaffected.
+  netDelayMs: opt('net-delay-ms', null),
 };
-if (!['smoke', 'pilot', 'raw', 'faults'].includes(cfg.phase)) throw new Error('--phase must be smoke, pilot, raw or faults');
+if (!['smoke', 'pilot', 'raw', 'faults', 'exploratory'].includes(cfg.phase)) throw new Error('--phase must be smoke, pilot, raw, faults or exploratory');
 if (cfg.arms.some((a) => !['A', 'B', 'C'].includes(a))) throw new Error('--arms takes A, B and/or C');
 
 const ROOT = process.cwd();
@@ -275,6 +278,24 @@ for (const p of plan) {
     if (cfg.clockSkewMs) {
       rec.skewCheck = skewCheck(p.arm, cfg.clockSkewMs);
       if (!rec.skewCheck.ok) { discard('clock skew not in effect (harness error before T0)', { skewCheck: rec.skewCheck }); down(p.arm); continue; }
+    }
+
+    // Exploratory network delay: a helper container joins each server container's network namespace and adds a
+    // netem qdisc on eth0 (egress). The qdisc goes away when the arm is torn down. Not in effect = harness error before T0.
+    if (cfg.netDelayMs) {
+      const NETEM = 'etr-netem:dev';
+      rec.netDelay = { ms: Number(cfg.netDelayMs), image: sh('docker', ['image', 'inspect', NETEM, '--format', '{{.Id}}']).out || null, containers: {} };
+      let netOk = rec.netDelay.image != null;
+      for (const c of A.servers) {
+        const base = ['run', '--rm', '--net', `container:${c}`, '--cap-add', 'NET_ADMIN', NETEM, 'tc', 'qdisc'];
+        const add = sh('docker', [...base, 'add', 'dev', 'eth0', 'root', 'netem', 'delay', `${cfg.netDelayMs}ms`]);
+        const show = sh('docker', [...base, 'show', 'dev', 'eth0']);
+        const on = add.ok && /netem/.test(show.out) && new RegExp(`delay ${Number(cfg.netDelayMs)}(\\.0)?ms`).test(show.out);
+        rec.netDelay.containers[c] = { ok: on, show: show.out.slice(0, 200), err: add.err.slice(-200) };
+        if (!on) netOk = false;
+      }
+      rec.netDelay.ok = netOk;
+      if (!netOk) { discard('network delay not in effect (harness error before T0)', { netDelay: rec.netDelay }); down(p.arm); continue; }
     }
 
     // Warm-up session (discarded by design, kept only for inspection)
