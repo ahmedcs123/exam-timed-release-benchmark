@@ -16,6 +16,7 @@ Abbreviations of source files:
 | VAL | `results/validation/tool-validation-2026-11-19T08-41-13-003Z.json` |
 | SL | `results/static-analysis/` (Slither output) |
 | LS | `docs/LITERATURE_SEARCH.md` (search protocol and screened records) |
+| NET | `results/exploratory/net50-summary.json` and `exploratory-NET50-b<NNN>-<arm>.resources.json` (written by `analysis/analyze_netdelay.py` and `run-schedule.js`) |
 | RL | `docs/RUN_LOG.md` |
 | DV | `docs/DEVIATIONS.md` |
 | PR | `docs/preregistration_v1_2026-11-18.pdf` |
@@ -88,13 +89,24 @@ All latencies in S, E and R are in milliseconds; the paper reports seconds round
 | Highest exact upper bound in any cell below 5 s | 2920 ms (LOAD20) | E column `diff_exact_hi` (L95 rows) |
 | Block-period settings confirmed in every A run | - | S `quality.blockPeriodChecksFailed` = []; RAW `raw-*-A.resources.json` field `blockPeriodCheck` (`wantS`, `gaps`, `medianS`, `ok`) |
 
-## Readiness time (Section 6.2, exploratory, not pre-registered)
+## Network delay, exploratory (Section 6.2, Figure 3 last row)
+
+| Claim | Value | Evidence |
+| --- | --- | --- |
+| 20 runs kept, delay in effect in every run, 0 early, all centres got the key | as stated | NET `allDelayChecksOk`, `earlyReleases`, `allCentresOk`; per run `netDelay.ok` |
+| Median L95 A 2.23 s, B 2.15 s | 2228 / 2145.5 ms | NET `L95_A_median_ms`, `L95_B_median_ms` |
+| Median paired difference 0.33 s, exact 97.85 % CI [-0.05, 1.57] s | 325.5 ms, [-45, 1573] ms | NET `diff_L95_median_ms`, `diff_exact_ci_ms`, `diff_exact_coverage` |
+| Same ten primary blocks without delay: 1.27 s [1.22, 2.24] s | 1265.5 ms, [1218, 2239] ms | NET `P_blocks_1_10_*` (from R) |
+| A faster than B in 3 of 10 pairs; A's L95 2.0-2.3 s in six pairs, 3.0-3.1 s in four | per pair | NET `perPair` |
+| Cell fixed before its data | - | DV row 2026-11-23 (NET50); git commit d0489bf precedes the runs (schedule-log `git.commit`) |
+
+## Readiness time (Section 6.3, exploratory, not pre-registered)
 
 | Claim | Value | Evidence |
 | --- | --- | --- |
 | Median time to ready: A about 111 s, B about 6 s, C 4.4 s | per-cell medians A 110.3-113.0 s, B 5.9-6.5 s, C 4.4 s | R `readySeconds` (median by cell and arm) |
 
-## RQ2: fault tests (Section 6.3, Figure 4)
+## RQ2: fault tests (Section 6.4, Figure 4)
 
 | Claim | Value | Evidence |
 | --- | --- | --- |
@@ -110,7 +122,7 @@ All latencies in S, E and R are in milliseconds; the paper reports seconds round
 | G1 A: re-registration reverted; B: direct write accepted, honest shares rejected, no key | - | FV `G1` checks; FR `faults-G1-*`; RL row 2026-11-20 (group 4) |
 | G1 met by immutability, not multisig | - | DV row 2026-11-20 (G1) |
 
-## RQ3: cost (Section 6.4, Figure 5, Table 4)
+## RQ3: cost (Section 6.5, Figure 5, Table 4)
 
 | Claim | Value | Evidence |
 | --- | --- | --- |

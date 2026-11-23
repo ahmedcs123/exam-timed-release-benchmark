@@ -1,0 +1,82 @@
+{
+  "cell": "NET50",
+  "delayMsPerServerEgress": 50,
+  "pairs": 10,
+  "runs": 20,
+  "allDelayChecksOk": true,
+  "earlyReleases": 0,
+  "allCentresOk": true,
+  "L95_A_median_ms": 2228.0,
+  "L95_B_median_ms": 2145.5,
+  "diff_L95_median_ms": 325.5,
+  "diff_exact_ci_ms": [
+    -45,
+    1573
+  ],
+  "diff_exact_coverage": 0.978515625,
+  "P_blocks_1_10_diff_L95_median_ms": 1265.5,
+  "P_blocks_1_10_exact_ci_ms": [
+    1218.0,
+    2239.0
+  ],
+  "readySeconds_median": {
+    "A": 117.80000000000001,
+    "B": 6.606
+  },
+  "cpu_s_median": {
+    "A": 41.665734,
+    "B": 5.6607455
+  },
+  "perPair": [
+    {
+      "block": 1,
+      "L95_A": 3090,
+      "L95_B": 1517
+    },
+    {
+      "block": 2,
+      "L95_A": 2136,
+      "L95_B": 1544
+    },
+    {
+      "block": 3,
+      "L95_A": 2295,
+      "L95_B": 2236
+    },
+    {
+      "block": 4,
+      "L95_A": 3026,
+      "L95_B": 2188
+    },
+    {
+      "block": 5,
+      "L95_A": 2109,
+      "L95_B": 2123
+    },
+    {
+      "block": 6,
+      "L95_A": 2018,
+      "L95_B": 2173
+    },
+    {
+      "block": 7,
+      "L95_A": 2096,
+      "L95_B": 2141
+    },
+    {
+      "block": 8,
+      "L95_A": 2998,
+      "L95_B": 2184
+    },
+    {
+      "block": 9,
+      "L95_A": 2161,
+      "L95_B": 2150
+    },
+    {
+      "block": 10,
+      "L95_A": 3046,
+      "L95_B": 1473
+    }
+  ]
+}

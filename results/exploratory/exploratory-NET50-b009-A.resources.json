@@ -1,0 +1,189 @@
+{
+  "schema": 1,
+  "block": 9,
+  "pos": 0,
+  "arm": "A",
+  "seed": 5009,
+  "runId": "exploratory-NET50-b009-A",
+  "phase": "exploratory",
+  "git": {
+    "commit": "d0489bf36bc9b93bb954b87b4273fda320e13aff",
+    "dirty": false
+  },
+  "imageId": "sha256:1d75858d4097d8a59bbd00aab153d3bec1fc97d74587ed093ce8b041617b5b11",
+  "cell": {
+    "m": 50,
+    "k": 3,
+    "n": 5,
+    "pollMs": 500,
+    "examSize": "5MB"
+  },
+  "marks": {
+    "upStart": 1795426544973,
+    "ready": 1795426664105,
+    "sessionStart": 1795426694478,
+    "sessionEnd": 1795426713722
+  },
+  "readySeconds": 119.132,
+  "blockPeriodCheck": {
+    "wantS": 2,
+    "gaps": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "medianS": 2,
+    "ok": true
+  },
+  "netDelay": {
+    "ms": 50,
+    "image": "sha256:f31340a03ba63a73f06a196c3f73754ff3e3b8c2fd8f56963f119f023f36b434",
+    "containers": {
+      "etr-besu1": {
+        "ok": true,
+        "show": "qdisc netem 8049: root refcnt 8 limit 1000 delay 50ms seed 3989662154986735449",
+        "err": ""
+      },
+      "etr-besu2": {
+        "ok": true,
+        "show": "qdisc netem 804a: root refcnt 8 limit 1000 delay 50ms seed 15736497214562688811",
+        "err": ""
+      },
+      "etr-besu3": {
+        "ok": true,
+        "show": "qdisc netem 804b: root refcnt 8 limit 1000 delay 50ms seed 4822347466404294559",
+        "err": ""
+      },
+      "etr-besu4": {
+        "ok": true,
+        "show": "qdisc netem 804c: root refcnt 8 limit 1000 delay 50ms seed 17040906971442214692",
+        "err": ""
+      }
+    },
+    "ok": true
+  },
+  "warmup": {
+    "ok": true,
+    "summary": {
+      "file": "/results/warmup/exploratory-NET50-b009-A-warmup.json",
+      "arm": "A",
+      "L50": 2141,
+      "L95": 2370,
+      "Lmax": 2389,
+      "completion60s": 1,
+      "earlyCount": 0,
+      "okCentres": 50,
+      "setupOverran": false,
+      "decryptOracleOk": true,
+      "acceptedShares": 5,
+      "alert": null
+    }
+  },
+  "session": {
+    "ok": true,
+    "summary": {
+      "file": "/results/./exploratory-NET50-b009-A.json",
+      "arm": "A",
+      "L50": 1724,
+      "L95": 2161,
+      "Lmax": 2254,
+      "completion60s": 1,
+      "earlyCount": 0,
+      "okCentres": 50,
+      "setupOverran": false,
+      "decryptOracleOk": true,
+      "acceptedShares": 5,
+      "alert": null
+    },
+    "file": "exploratory-NET50-b009-A.json"
+  },
+  "resources": {
+    "perContainer": {
+      "etr-besu1": {
+        "samples": 39,
+        "errors": 0,
+        "cpuSeconds": 10.875002,
+        "memMaxBytes": 390705152,
+        "intervalMeanMs": 503.1842105263158,
+        "intervalMaxMs": 547
+      },
+      "etr-besu2": {
+        "samples": 39,
+        "errors": 0,
+        "cpuSeconds": 9.843228,
+        "memMaxBytes": 393011200,
+        "intervalMeanMs": 503.3157894736842,
+        "intervalMaxMs": 546
+      },
+      "etr-besu3": {
+        "samples": 39,
+        "errors": 0,
+        "cpuSeconds": 10.867303,
+        "memMaxBytes": 393527296,
+        "intervalMeanMs": 503.13157894736844,
+        "intervalMaxMs": 546
+      },
+      "etr-besu4": {
+        "samples": 39,
+        "errors": 0,
+        "cpuSeconds": 10.439112,
+        "memMaxBytes": 393408512,
+        "intervalMeanMs": 503.36842105263156,
+        "intervalMaxMs": 545
+      }
+    },
+    "cpuSecondsTotal": 42.024645,
+    "memMaxBytesSum": 1570652160,
+    "samplerErrors": 0
+  },
+  "storage": {
+    "before": {
+      "etr-besu1": {
+        "sizeRwBytes": 117350400,
+        "volumes": [],
+        "totalBytes": 117350400
+      },
+      "etr-besu2": {
+        "sizeRwBytes": 117338112,
+        "volumes": [],
+        "totalBytes": 117338112
+      },
+      "etr-besu3": {
+        "sizeRwBytes": 117108736,
+        "volumes": [],
+        "totalBytes": 117108736
+      },
+      "etr-besu4": {
+        "sizeRwBytes": 117174272,
+        "volumes": [],
+        "totalBytes": 117174272
+      }
+    },
+    "after": {
+      "etr-besu1": {
+        "sizeRwBytes": 117882880,
+        "volumes": [],
+        "totalBytes": 117882880
+      },
+      "etr-besu2": {
+        "sizeRwBytes": 117874688,
+        "volumes": [],
+        "totalBytes": 117874688
+      },
+      "etr-besu3": {
+        "sizeRwBytes": 117657600,
+        "volumes": [],
+        "totalBytes": 117657600
+      },
+      "etr-besu4": {
+        "sizeRwBytes": 117698560,
+        "volumes": [],
+        "totalBytes": 117698560
+      }
+    },
+    "growthBytes": 2142208
+  }
+}

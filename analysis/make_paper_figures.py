@@ -45,7 +45,10 @@ order=['P','M10','M200','K5N9','JIT30','LOAD20','BP1','BP5','POLL200','POLL1000'
 lab={'P':'Primary (M=50, k/n=3/5)','M10':'M = 10 centres','M200':'M = 200 centres','K5N9':'(k, n) = (5, 9)','JIT30':'Trustee jitter U(0, 30 s)',
 'LOAD20':'Background load 20/s','BP1':'Block period 1 s','BP5':'Block period 5 s','POLL200':'Polling 200 ms','POLL1000':'Polling 1000 ms','EX1':'Exam 1 MB','EX20':'Exam 20 MB'}
 e=E[E.metric=='L95'].set_index('cell').loc[order]
-f,ax=plt.subplots(figsize=(6.4,3.8)); y=np.arange(len(order))[::-1]
+NETF=os.path.join(REPO,'results','exploratory','net50-summary.json')
+net=json.load(open(NETF)) if os.path.exists(NETF) else None
+nrow=len(order)+(1 if net else 0)
+f,ax=plt.subplots(figsize=(6.4,3.8+(0.32 if net else 0))); y=np.arange(nrow)[::-1][:len(order)]
 for yi,(c,r) in zip(y,e.iterrows()):
     col=INK if c=='P' else A
     m=r.median_diff_A_minus_B/1000
@@ -53,10 +56,19 @@ for yi,(c,r) in zip(y,e.iterrows()):
     from decimal import Decimal as D, ROUND_HALF_UP as H
     q=lambda v: str(D(str(v/1000)).quantize(D('0.01'),rounding=H))
     ax.text(5.45,yi,f'{q(r.median_diff_A_minus_B)} [{q(r.diff_exact_lo)}, {q(r.diff_exact_hi)}]',va='center',fontsize=7.5,color=MUTED)
-ax.axvline(5,color=INK,ls='--',lw=1.2); ax.axvline(0,color=MUTED,lw=.8); ax.text(4.95,len(order)-.4,'δ = 5 s',ha='right',fontsize=8)
-ax.set_yticks(y,[lab[c] for c in order]); ax.set_xlim(-.2,5.3); ax.set_ylim(-.7,len(order)-.1)
+yt=list(y); yl=[lab[c] for c in order]
+if net:
+    from decimal import Decimal as D2, ROUND_HALF_UP as H2
+    q2=lambda v: str(D2(str(v/1000)).quantize(D2('0.01'),rounding=H2))
+    m=net['diff_L95_median_ms']/1000; lo,hi=[v/1000 for v in net['diff_exact_ci_ms']]
+    ax.errorbar(m,0,xerr=[[m-lo],[hi-m]],fmt='o',ms=5.5,color='white',mec=C,mew=1.4,ecolor=C,elinewidth=1.6,capsize=0,zorder=3)
+    ax.text(5.45,0,f"{q2(net['diff_L95_median_ms'])} [{q2(net['diff_exact_ci_ms'][0])}, {q2(net['diff_exact_ci_ms'][1])}]",va='center',fontsize=7.5,color=MUTED)
+    ax.axhline(0.5,color=MUTED,lw=.6,ls=':')
+    yt.append(0); yl.append('+50 ms network delay (exploratory)')
+ax.axvline(5,color=INK,ls='--',lw=1.2); ax.axvline(0,color=MUTED,lw=.8); ax.text(4.95,nrow-.4,'δ = 5 s',ha='right',fontsize=8)
+ax.set_yticks(yt,yl); ax.set_xlim(-.3,5.3); ax.set_ylim(-.7,nrow-.1)
 ax.set_xlabel('Median paired Δ L95 (A − B), s, with exact CI (20 pairs: 95.86%; 10 pairs: 97.85%)')
-ax.text(5.45,len(order)-.4,'median [CI], s',fontsize=7.5,color=MUTED)
+ax.text(5.45,nrow-.4,'median [CI], s',fontsize=7.5,color=MUTED)
 ax.grid(axis='y',visible=False); f.tight_layout(); save(f,'fig3_sensitivity')
 
 # Fig 5: fault matrix

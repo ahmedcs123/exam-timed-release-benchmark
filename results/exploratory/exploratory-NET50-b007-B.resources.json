@@ -1,0 +1,176 @@
+{
+  "schema": 1,
+  "block": 7,
+  "pos": 1,
+  "arm": "B",
+  "seed": 5007,
+  "runId": "exploratory-NET50-b007-B",
+  "phase": "exploratory",
+  "git": {
+    "commit": "d0489bf36bc9b93bb954b87b4273fda320e13aff",
+    "dirty": false
+  },
+  "imageId": "sha256:1d75858d4097d8a59bbd00aab153d3bec1fc97d74587ed093ce8b041617b5b11",
+  "cell": {
+    "m": 50,
+    "k": 3,
+    "n": 5,
+    "pollMs": 500,
+    "examSize": "5MB"
+  },
+  "marks": {
+    "upStart": 1795426231761,
+    "ready": 1795426237421,
+    "sessionStart": 1795426265977,
+    "sessionEnd": 1795426285568
+  },
+  "readySeconds": 5.66,
+  "netDelay": {
+    "ms": 50,
+    "image": "sha256:f31340a03ba63a73f06a196c3f73754ff3e3b8c2fd8f56963f119f023f36b434",
+    "containers": {
+      "etr-etcd1": {
+        "ok": true,
+        "show": "qdisc netem 803d: root refcnt 8 limit 1000 delay 50ms seed 11338874997485319934",
+        "err": ""
+      },
+      "etr-etcd2": {
+        "ok": true,
+        "show": "qdisc netem 803e: root refcnt 8 limit 1000 delay 50ms seed 5303754070228400711",
+        "err": ""
+      },
+      "etr-etcd3": {
+        "ok": true,
+        "show": "qdisc netem 803f: root refcnt 8 limit 1000 delay 50ms seed 15391110003420641699",
+        "err": ""
+      },
+      "etr-coordinator": {
+        "ok": true,
+        "show": "qdisc netem 8040: root refcnt 8 limit 1000 delay 50ms seed 12091419927904993155",
+        "err": ""
+      }
+    },
+    "ok": true
+  },
+  "warmup": {
+    "ok": true,
+    "summary": {
+      "file": "/results/warmup/exploratory-NET50-b007-B-warmup.json",
+      "arm": "B",
+      "L50": 905,
+      "L95": 1454,
+      "Lmax": 1959,
+      "completion60s": 1,
+      "earlyCount": 0,
+      "okCentres": 50,
+      "setupOverran": false,
+      "decryptOracleOk": true,
+      "acceptedShares": 5,
+      "alert": null
+    }
+  },
+  "session": {
+    "ok": true,
+    "summary": {
+      "file": "/results/./exploratory-NET50-b007-B.json",
+      "arm": "B",
+      "L50": 1426,
+      "L95": 2141,
+      "Lmax": 2145,
+      "completion60s": 1,
+      "earlyCount": 0,
+      "okCentres": 50,
+      "setupOverran": false,
+      "decryptOracleOk": true,
+      "acceptedShares": 5,
+      "alert": null
+    },
+    "file": "exploratory-NET50-b007-B.json"
+  },
+  "resources": {
+    "perContainer": {
+      "etr-etcd1": {
+        "samples": 39,
+        "errors": 0,
+        "cpuSeconds": 1.618,
+        "memMaxBytes": 31395840,
+        "intervalMeanMs": 502.5,
+        "intervalMaxMs": 530
+      },
+      "etr-etcd2": {
+        "samples": 39,
+        "errors": 0,
+        "cpuSeconds": 0.466587,
+        "memMaxBytes": 12296192,
+        "intervalMeanMs": 502.42105263157896,
+        "intervalMaxMs": 530
+      },
+      "etr-etcd3": {
+        "samples": 39,
+        "errors": 0,
+        "cpuSeconds": 0.571954,
+        "memMaxBytes": 11988992,
+        "intervalMeanMs": 502.36842105263156,
+        "intervalMaxMs": 521
+      },
+      "etr-coordinator": {
+        "samples": 39,
+        "errors": 0,
+        "cpuSeconds": 3.024062,
+        "memMaxBytes": 70438912,
+        "intervalMeanMs": 502.4736842105263,
+        "intervalMaxMs": 523
+      }
+    },
+    "cpuSecondsTotal": 5.680603,
+    "memMaxBytesSum": 126119936,
+    "samplerErrors": 0
+  },
+  "storage": {
+    "before": {
+      "etr-etcd1": {
+        "sizeRwBytes": 128045056,
+        "volumes": [],
+        "totalBytes": 128045056
+      },
+      "etr-etcd2": {
+        "sizeRwBytes": 128045056,
+        "volumes": [],
+        "totalBytes": 128045056
+      },
+      "etr-etcd3": {
+        "sizeRwBytes": 128045056,
+        "volumes": [],
+        "totalBytes": 128045056
+      },
+      "etr-coordinator": {
+        "sizeRwBytes": 4096,
+        "volumes": [],
+        "totalBytes": 4096
+      }
+    },
+    "after": {
+      "etr-etcd1": {
+        "sizeRwBytes": 128057344,
+        "volumes": [],
+        "totalBytes": 128057344
+      },
+      "etr-etcd2": {
+        "sizeRwBytes": 128053248,
+        "volumes": [],
+        "totalBytes": 128053248
+      },
+      "etr-etcd3": {
+        "sizeRwBytes": 128053248,
+        "volumes": [],
+        "totalBytes": 128053248
+      },
+      "etr-coordinator": {
+        "sizeRwBytes": 4096,
+        "volumes": [],
+        "totalBytes": 4096
+      }
+    },
+    "growthBytes": 28672
+  }
+}
