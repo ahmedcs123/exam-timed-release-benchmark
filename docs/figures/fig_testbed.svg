@@ -1,0 +1,182 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1120" viewBox="0 0 1800 1120" font-family="'Liberation Sans', Arial, Helvetica, sans-serif" xmlns:c2pa="http://c2pa.org/manifest">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#33414F"/>
+    </marker>
+    <marker id="arS" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5B6B7C"/>
+    </marker>
+  </defs>
+  <rect width="1800" height="1120" fill="#FFFFFF"/>
+
+  <!-- Host frame -->
+  <rect x="20" y="20" width="1760" height="1080" rx="16" fill="none" stroke="#9AA5B1" stroke-width="2" stroke-dasharray="10 6"/>
+  <text x="40" y="47" font-size="15" font-style="italic" fill="#52606D">Single host: Windows laptop · Docker Desktop (WSL2) · 16 GB RAM · every server container limited to 1 CPU</text>
+
+  <!-- Run scheduler -->
+  <rect x="40" y="62" width="1720" height="150" rx="12" fill="#EEF2F7" stroke="#4A5A70" stroke-width="2"/>
+  <text x="60" y="92" font-size="21" font-weight="bold" fill="#1F2933">Run scheduler (Node.js, on the host)</text>
+  <text x="1740" y="92" font-size="14" text-anchor="end" fill="#52606D">A, B (and C) of a block share one seed; arm order randomised with a logged seed</text>
+  <g font-size="15" fill="#1F2933">
+    <rect x="60" y="110" width="262" height="78" rx="8" fill="#FFFFFF" stroke="#4A5A70"/>
+    <text x="74" y="140" font-weight="bold">1  Fresh arm</text><text x="74" y="166">compose down -v → up</text>
+    <rect x="338" y="110" width="262" height="78" rx="8" fill="#FFFFFF" stroke="#4A5A70"/>
+    <text x="352" y="140" font-weight="bold">2  Readiness and checks</text><text x="352" y="166">peers, block period, clock skew</text>
+    <rect x="616" y="110" width="262" height="78" rx="8" fill="#FFFFFF" stroke="#4A5A70"/>
+    <text x="630" y="140" font-weight="bold">3  Warm-up session</text><text x="630" y="166">same cell, discarded</text>
+    <rect x="894" y="110" width="262" height="78" rx="8" fill="#FFFFFF" stroke="#4A5A70"/>
+    <text x="908" y="140" font-weight="bold">4  Measured session</text><text x="908" y="166">sampler on server containers</text>
+    <rect x="1172" y="110" width="262" height="78" rx="8" fill="#FFFFFF" stroke="#4A5A70"/>
+    <text x="1186" y="140" font-weight="bold">5  Record</text><text x="1186" y="166">latency · CPU · memory · storage</text>
+    <rect x="1450" y="110" width="290" height="78" rx="8" fill="#FFFFFF" stroke="#4A5A70"/>
+    <text x="1464" y="140" font-weight="bold">6  Tear down</text><text x="1464" y="166">results/raw/&lt;run&gt;.json, next run</text>
+  </g>
+  <g stroke="#33414F" stroke-width="2" marker-end="url(#ar)">
+    <line x1="322" y1="149" x2="336" y2="149"/><line x1="600" y1="149" x2="614" y2="149"/>
+    <line x1="878" y1="149" x2="892" y2="149"/><line x1="1156" y1="149" x2="1170" y2="149"/>
+    <line x1="1434" y1="149" x2="1448" y2="149"/>
+  </g>
+  <!-- scheduler controls -->
+  <g stroke="#5B6B7C" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#arS)">
+    <line x1="360" y1="212" x2="360" y2="238"/>
+    <line x1="1290" y1="212" x2="1290" y2="238"/>
+  </g>
+  <text x="372" y="230" font-size="13.5" fill="#52606D">starts each session (docker run)</text>
+  <text x="1302" y="230" font-size="13.5" fill="#52606D">docker compose · docker kill · Docker stats API</text>
+
+  <!-- Load generator -->
+  <rect x="40" y="245" width="640" height="660" rx="12" fill="#F3F0FA" stroke="#5B4B8A" stroke-width="2"/>
+  <text x="60" y="277" font-size="21" font-weight="bold" fill="#1F2933">Load generator container</text>
+  <text x="60" y="299" font-size="14" font-style="italic" fill="#52606D">same code and seeds for every arm · excluded from resource measurement</text>
+  <g font-size="15" fill="#1F2933">
+    <rect x="60" y="315" width="600" height="168" rx="8" fill="#FFFFFF" stroke="#5B4B8A"/>
+    <text x="76" y="342" font-size="17" font-weight="bold">Session setup</text>
+    <text x="76" y="370">Synthetic exam (5 MB, seeded) → AES-256-GCM encryption</text>
+    <text x="76" y="396">Exam key → Shamir k-of-n split (k = 3, n = 5)</text>
+    <text x="76" y="422">Share commitments: SHA-256(examId, index, share)</text>
+    <text x="76" y="448">Registration with the arm; T0 on a whole second, ~15 s later</text>
+    <text x="76" y="472" font-size="13.5" fill="#52606D">(Arm C stores the key itself; no trustees)</text>
+
+    <rect x="60" y="500" width="600" height="150" rx="8" fill="#FFFFFF" stroke="#5B4B8A"/>
+    <text x="76" y="527" font-size="17" font-weight="bold">Trustees (n = 5)</text>
+    <text x="76" y="555">Each submits its share at T0 (retries while "too early")</text>
+    <text x="76" y="581">Arm B: share signed with the trustee's Ed25519 key</text>
+    <text x="76" y="607">Sensitivity / faults: jitter 0–30 s, absent, corrupted,</text>
+    <text x="76" y="631">early or eager submissions</text>
+
+    <rect x="60" y="667" width="600" height="222" rx="8" fill="#FFFFFF" stroke="#5B4B8A"/>
+    <text x="76" y="694" font-size="17" font-weight="bold">Exam centres (M = 50)</text>
+    <text x="76" y="722">Poll every 500 ms (seeded phase offsets)</text>
+    <text x="76" y="748">Verify each share against its commitment (B: and signature)</text>
+    <text x="76" y="774">Rebuild the key from k shares, check its SHA-256</text>
+    <text x="76" y="800">Arrival time after T0 per centre → L50, L95, Lmax</text>
+    <text x="76" y="826">Early key (before T0) counted as a safety failure</text>
+    <text x="76" y="852">Oracle: decrypt the exam once, compare its SHA-256</text>
+    <text x="76" y="876" font-size="13.5" fill="#52606D">Sensitivity: M = 10 / 200, polling 200 / 1000 ms, exam 1 / 20 MB</text>
+  </g>
+
+  <!-- Buses between load generator and arms -->
+  <g stroke="#33414F" stroke-width="2.2" fill="none">
+    <!-- setup + shares: load generator -> arms -->
+    <polyline points="660,400 712,400"/>
+    <polyline points="660,575 712,575"/>
+    <line x1="712" y1="360" x2="712" y2="868"/>
+    <line x1="712" y1="360" x2="818" y2="360" marker-end="url(#ar)"/>
+    <line x1="712" y1="640" x2="818" y2="640" marker-end="url(#ar)"/>
+    <line x1="712" y1="868" x2="818" y2="868" marker-end="url(#ar)"/>
+    <!-- reads: arms -> centres -->
+    <line x1="818" y1="420" x2="782" y2="420"/>
+    <line x1="818" y1="705" x2="782" y2="705"/>
+    <line x1="818" y1="890" x2="782" y2="890"/>
+    <line x1="782" y1="420" x2="782" y2="890"/>
+    <line x1="782" y1="780" x2="662" y2="780" marker-end="url(#ar)"/>
+  </g>
+  <circle cx="712" cy="400" r="4" fill="#33414F"/><circle cx="712" cy="575" r="4" fill="#33414F"/>
+  <circle cx="782" cy="705" r="4" fill="#33414F"/><circle cx="782" cy="780" r="4" fill="#33414F"/>
+  <text transform="translate(702,490) rotate(-90)" font-size="14" fill="#33414F" text-anchor="middle">setup · shares at T0</text>
+  <text transform="translate(800,530) rotate(-90)" font-size="14" fill="#33414F" text-anchor="middle">centres read shares / key</text>
+
+  <!-- Arm A -->
+  <rect x="820" y="245" width="940" height="300" rx="12" fill="#E8F3EC" stroke="#2E7D4F" stroke-width="2"/>
+  <text x="840" y="277" font-size="20" font-weight="bold" fill="#1F2933">Arm A · threshold + smart contract (Hyperledger Besu, QBFT)</text>
+  <g font-size="15" fill="#1F2933" text-anchor="middle">
+    <line x1="915" y1="335" x2="1395" y2="335" stroke="#2E7D4F" stroke-width="2"/>
+    <rect x="845" y="300" width="140" height="70" rx="8" fill="#FFFFFF" stroke="#2E7D4F"/><text x="915" y="330" font-weight="bold">Validator 1</text><text x="915" y="354">1 CPU</text>
+    <rect x="1005" y="300" width="140" height="70" rx="8" fill="#FFFFFF" stroke="#2E7D4F"/><text x="1075" y="330" font-weight="bold">Validator 2</text><text x="1075" y="354">1 CPU</text>
+    <rect x="1165" y="300" width="140" height="70" rx="8" fill="#FFFFFF" stroke="#2E7D4F"/><text x="1235" y="330" font-weight="bold">Validator 3</text><text x="1235" y="354">1 CPU</text>
+    <rect x="1325" y="300" width="140" height="70" rx="8" fill="#FFFFFF" stroke="#2E7D4F"/><text x="1395" y="330" font-weight="bold">Validator 4</text><text x="1395" y="354">1 CPU</text>
+  </g>
+  <g font-size="15" fill="#1F2933">
+    <text x="845" y="400">QBFT consensus · block period 2 s (sensitivity 1 s / 5 s) · tolerates 1 faulty validator</text>
+    <text x="845" y="428">Every validator holds the contract state (replicated ledger)</text>
+    <text x="845" y="456">Trustee i sends its transaction to validator (i mod 4) + 1</text>
+    <text x="845" y="484">Centres read from their own validator, fail over to the others</text>
+    <text x="845" y="512">(2 s timeout per request)</text>
+  </g>
+  <rect x="1490" y="300" width="250" height="225" rx="8" fill="#FFFFFF" stroke="#2E7D4F"/>
+  <g font-size="14" fill="#1F2933">
+    <text x="1504" y="326" font-size="16" font-weight="bold">ExamRelease.sol</text>
+    <text x="1504" y="352">registerExam(T0, k,</text>
+    <text x="1504" y="372">   trustees, commitments)</text>
+    <text x="1504" y="400">submitShare reverts if</text>
+    <text x="1504" y="420">   block time &lt; T0,</text>
+    <text x="1504" y="440">   not the trustee, or</text>
+    <text x="1504" y="460">   commitment mismatch</text>
+    <text x="1504" y="488">getShares (on any node)</text>
+    <text x="1504" y="512" fill="#52606D">no edit / delete function</text>
+  </g>
+
+  <!-- Arm B -->
+  <rect x="820" y="565" width="940" height="225" rx="12" fill="#FDF1E6" stroke="#B5651D" stroke-width="2"/>
+  <text x="840" y="597" font-size="20" font-weight="bold" fill="#1F2933">Arm B · threshold + replicated coordinator (etcd, Raft)</text>
+  <rect x="845" y="615" width="340" height="155" rx="8" fill="#FFFFFF" stroke="#B5651D"/>
+  <g font-size="15" fill="#1F2933">
+    <text x="861" y="642" font-size="16" font-weight="bold">Coordinator (REST, 1 CPU)</text>
+    <text x="861" y="668">Accepts a share only after T0,</text>
+    <text x="861" y="690">by its own clock</text>
+    <text x="861" y="716">Checks commitment and signature</text>
+    <text x="861" y="742">Serves stored shares to centres</text>
+  </g>
+  <line x1="1185" y1="668" x2="1240" y2="668" stroke="#33414F" stroke-width="2" marker-end="url(#ar)"/>
+  <g font-size="15" fill="#1F2933" text-anchor="middle">
+    <line x1="1315" y1="668" x2="1655" y2="668" stroke="#B5651D" stroke-width="2"/>
+    <rect x="1245" y="633" width="140" height="70" rx="8" fill="#FFFFFF" stroke="#B5651D"/><text x="1315" y="663" font-weight="bold">etcd 1</text><text x="1315" y="687">1 CPU</text>
+    <rect x="1415" y="633" width="140" height="70" rx="8" fill="#FFFFFF" stroke="#B5651D"/><text x="1485" y="663" font-weight="bold">etcd 2</text><text x="1485" y="687">1 CPU</text>
+    <rect x="1585" y="633" width="140" height="70" rx="8" fill="#FFFFFF" stroke="#B5651D"/><text x="1655" y="663" font-weight="bold">etcd 3</text><text x="1655" y="687">1 CPU</text>
+  </g>
+  <g font-size="15" fill="#1F2933">
+    <text x="1245" y="735">Raft cluster, 3 replicas, tolerates 1 crash</text>
+    <text x="1245" y="761">Share record = keys in etcd (one operator)</text>
+  </g>
+
+  <!-- Arm C -->
+  <rect x="820" y="810" width="940" height="95" rx="12" fill="#F2F2F2" stroke="#6B6B6B" stroke-width="2"/>
+  <text x="840" y="842" font-size="20" font-weight="bold" fill="#1F2933">Arm C · central key server (reference only)</text>
+  <rect x="845" y="855" width="430" height="40" rx="8" fill="#FFFFFF" stroke="#6B6B6B"/>
+  <text x="861" y="881" font-size="15" fill="#1F2933">Key server (1 CPU): returns the key after T0</text>
+  <text x="1295" y="881" font-size="15" font-style="italic" fill="#52606D">one operator, one clock, no threshold</text>
+
+  <!-- Bottom band: measurement, faults, records -->
+  <rect x="40" y="925" width="1720" height="160" rx="12" fill="#FFFFFF" stroke="#4A5A70" stroke-width="2" stroke-dasharray="8 5"/>
+  <line x1="610" y1="940" x2="610" y2="1070" stroke="#CBD2D9" stroke-width="2"/>
+  <line x1="1190" y1="940" x2="1190" y2="1070" stroke="#CBD2D9" stroke-width="2"/>
+  <g font-size="15" fill="#1F2933">
+    <text x="60" y="957" font-size="17" font-weight="bold">Resource measurement</text>
+    <text x="60" y="984">Docker Engine API every 500 ms, on the arm's</text>
+    <text x="60" y="1008">server containers only → CPU-seconds, peak memory</text>
+    <text x="60" y="1032">Storage growth: container layer + volumes</text>
+    <text x="60" y="1056">Arm A: gas per share submission</text>
+
+    <text x="630" y="957" font-size="17" font-weight="bold">Fault and security tests (F1–F8, G1)</text>
+    <text x="630" y="984">Absent / corrupted / early shares · one clock +30 s</text>
+    <text x="630" y="1008">(libfaketime on one validator; coordinator clock)</text>
+    <text x="630" y="1032">Censorship · replica killed at T0 · record tampering</text>
+    <text x="630" y="1056">with an independent auditor · trustee-set change</text>
+
+    <text x="1210" y="957" font-size="17" font-weight="bold">Records and analysis</text>
+    <text x="1210" y="984">One JSON record per run, with commit and image id</text>
+    <text x="1210" y="1008">analyze.js → H1 (paired L95, exact CI), H1b,</text>
+    <text x="1210" y="1032">fault verdicts (k/10), cost (bootstrap CIs)</text>
+    <text x="1210" y="1056">Pre-registered design; deviations logged</text>
+  </g>
+<metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYToyMzM2NzYzNC1hOTM1LTQ0YmUtYTE0NC02MDEyZmRkNTA0M2QAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaKUuxJSg0bNnzzHXXUsmVmoAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDplNGQ4NjUwYS0yMGZiLTQ5MmUtODg0MS04ZmU4MDlmOTU2NjhscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNoGJlLZtMCiDK5Mqxs/AyafQAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFgglfNFqRZruYutS2UL6p7Ldj/0QBFac5k8YoQMRVa2zlGkZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaGpCrtML8aUYP/VJEt4gxC0AAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRMAAAAAAAAAAAAAAAAZGhhc2hYICdcbBiYAcAM2Wb6/2zi6nGOdCy0s2ttMv7lIyekYmptZG5hbWVuanVtYmYgbWFuaWZlc3RqZXhjbHVzaW9uc4GiZXN0YXJ0GTRiZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOjIzMzY3NjM0LWE5MzUtNDRiZS1hMTQ0LTYwMTJmZGQ1MDQzZC9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOmE0ZWM4MjI4LTNhOGUtNGI3OC05MzAxLTJlOTUzNzM3YjJmNHJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCCV80WpFmu5i61LZQvqnst2P/RAEVpzmTxihAxFVrbOUaJjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggDDUZcxFJ1UKrvP+XzZPpLuheZHG50ROH+bmxbLVA1u+iY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggyJYGqmk2ZeBe3OJdXU2SeIdVI+gi+AuAKIZqnBEiaMd0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQKScxuQkKY/gBORXk+oGI3YyYJigPdbVu5oDUjis746bcr45irB52BUB/t4BXmu3kQHc2EExueWV155Ev+8QnNI=</c2pa:manifest></metadata></svg>

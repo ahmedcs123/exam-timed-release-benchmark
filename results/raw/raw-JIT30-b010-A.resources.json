@@ -1,0 +1,162 @@
+{
+  "schema": 1,
+  "block": 10,
+  "pos": 0,
+  "arm": "A",
+  "seed": 5410,
+  "runId": "raw-JIT30-b010-A",
+  "phase": "raw",
+  "git": {
+    "commit": "b9c1df89b441e269facfb6ff40bf0dc406a58204",
+    "dirty": true
+  },
+  "imageId": "sha256:1d75858d4097d8a59bbd00aab153d3bec1fc97d74587ed093ce8b041617b5b11",
+  "cell": {
+    "m": 50,
+    "k": 3,
+    "n": 5,
+    "pollMs": 500,
+    "examSize": "5MB"
+  },
+  "marks": {
+    "upStart": 1795351522378,
+    "ready": 1795351639630,
+    "sessionStart": 1795351659814,
+    "sessionEnd": 1795351702680
+  },
+  "readySeconds": 117.252,
+  "blockPeriodCheck": {
+    "wantS": 2,
+    "gaps": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "medianS": 2,
+    "ok": true
+  },
+  "warmup": {
+    "ok": true,
+    "summary": {
+      "file": "/results/warmup/raw-JIT30-b010-A-warmup.json",
+      "arm": "A",
+      "L50": 2783,
+      "L95": 3095,
+      "Lmax": 3130,
+      "completion60s": 1,
+      "earlyCount": 0,
+      "okCentres": 50,
+      "setupOverran": false,
+      "decryptOracleOk": true,
+      "acceptedShares": 5,
+      "alert": null
+    }
+  },
+  "session": {
+    "ok": true,
+    "summary": {
+      "file": "/results/./raw-JIT30-b010-A.json",
+      "arm": "A",
+      "L50": 21278,
+      "L95": 21552,
+      "Lmax": 21563,
+      "completion60s": 1,
+      "earlyCount": 0,
+      "okCentres": 50,
+      "setupOverran": false,
+      "decryptOracleOk": true,
+      "acceptedShares": 5,
+      "alert": null
+    },
+    "file": "raw-JIT30-b010-A.json"
+  },
+  "resources": {
+    "perContainer": {
+      "etr-besu1": {
+        "samples": 85,
+        "errors": 0,
+        "cpuSeconds": 18.648343,
+        "memMaxBytes": 392404992,
+        "intervalMeanMs": 504.2142857142857,
+        "intervalMaxMs": 546
+      },
+      "etr-besu2": {
+        "samples": 85,
+        "errors": 0,
+        "cpuSeconds": 19.669679,
+        "memMaxBytes": 396414976,
+        "intervalMeanMs": 504.2142857142857,
+        "intervalMaxMs": 563
+      },
+      "etr-besu3": {
+        "samples": 85,
+        "errors": 0,
+        "cpuSeconds": 19.532312,
+        "memMaxBytes": 393224192,
+        "intervalMeanMs": 504.0595238095238,
+        "intervalMaxMs": 563
+      },
+      "etr-besu4": {
+        "samples": 85,
+        "errors": 0,
+        "cpuSeconds": 18.633571,
+        "memMaxBytes": 397864960,
+        "intervalMeanMs": 504.0595238095238,
+        "intervalMaxMs": 548
+      }
+    },
+    "cpuSecondsTotal": 76.48390500000001,
+    "memMaxBytesSum": 1579909120,
+    "samplerErrors": 0
+  },
+  "storage": {
+    "before": {
+      "etr-besu1": {
+        "sizeRwBytes": 117055488,
+        "volumes": [],
+        "totalBytes": 117055488
+      },
+      "etr-besu2": {
+        "sizeRwBytes": 117092352,
+        "volumes": [],
+        "totalBytes": 117092352
+      },
+      "etr-besu3": {
+        "sizeRwBytes": 116994048,
+        "volumes": [],
+        "totalBytes": 116994048
+      },
+      "etr-besu4": {
+        "sizeRwBytes": 116920320,
+        "volumes": [],
+        "totalBytes": 116920320
+      }
+    },
+    "after": {
+      "etr-besu1": {
+        "sizeRwBytes": 117968896,
+        "volumes": [],
+        "totalBytes": 117968896
+      },
+      "etr-besu2": {
+        "sizeRwBytes": 118140928,
+        "volumes": [],
+        "totalBytes": 118140928
+      },
+      "etr-besu3": {
+        "sizeRwBytes": 117940224,
+        "volumes": [],
+        "totalBytes": 117940224
+      },
+      "etr-besu4": {
+        "sizeRwBytes": 117870592,
+        "volumes": [],
+        "totalBytes": 117870592
+      }
+    },
+    "growthBytes": 3858432
+  }
+}

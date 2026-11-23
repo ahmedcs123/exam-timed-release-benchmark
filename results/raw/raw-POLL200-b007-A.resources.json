@@ -1,0 +1,162 @@
+{
+  "schema": 1,
+  "block": 7,
+  "pos": 0,
+  "arm": "A",
+  "seed": 5807,
+  "runId": "raw-POLL200-b007-A",
+  "phase": "raw",
+  "git": {
+    "commit": "b9c1df89b441e269facfb6ff40bf0dc406a58204",
+    "dirty": true
+  },
+  "imageId": "sha256:1d75858d4097d8a59bbd00aab153d3bec1fc97d74587ed093ce8b041617b5b11",
+  "cell": {
+    "m": 50,
+    "k": 3,
+    "n": 5,
+    "pollMs": 200,
+    "examSize": "5MB"
+  },
+  "marks": {
+    "upStart": 1795376257583,
+    "ready": 1795376368887,
+    "sessionStart": 1795376389842,
+    "sessionEnd": 1795376409188
+  },
+  "readySeconds": 111.304,
+  "blockPeriodCheck": {
+    "wantS": 2,
+    "gaps": [
+      2,
+      2,
+      2,
+      2,
+      5,
+      6
+    ],
+    "medianS": 2,
+    "ok": true
+  },
+  "warmup": {
+    "ok": true,
+    "summary": {
+      "file": "/results/warmup/raw-POLL200-b007-A-warmup.json",
+      "arm": "A",
+      "L50": 2726,
+      "L95": 2994,
+      "Lmax": 2997,
+      "completion60s": 1,
+      "earlyCount": 0,
+      "okCentres": 50,
+      "setupOverran": false,
+      "decryptOracleOk": true,
+      "acceptedShares": 5,
+      "alert": null
+    }
+  },
+  "session": {
+    "ok": true,
+    "summary": {
+      "file": "/results/./raw-POLL200-b007-A.json",
+      "arm": "A",
+      "L50": 1544,
+      "L95": 1696,
+      "Lmax": 1699,
+      "completion60s": 1,
+      "earlyCount": 0,
+      "okCentres": 50,
+      "setupOverran": false,
+      "decryptOracleOk": true,
+      "acceptedShares": 5,
+      "alert": null
+    },
+    "file": "raw-POLL200-b007-A.json"
+  },
+  "resources": {
+    "perContainer": {
+      "etr-besu1": {
+        "samples": 39,
+        "errors": 0,
+        "cpuSeconds": 14.116925,
+        "memMaxBytes": 399396864,
+        "intervalMeanMs": 502.7105263157895,
+        "intervalMaxMs": 537
+      },
+      "etr-besu2": {
+        "samples": 39,
+        "errors": 0,
+        "cpuSeconds": 13.660924,
+        "memMaxBytes": 389967872,
+        "intervalMeanMs": 502.7894736842105,
+        "intervalMaxMs": 534
+      },
+      "etr-besu3": {
+        "samples": 39,
+        "errors": 0,
+        "cpuSeconds": 15.009282,
+        "memMaxBytes": 403558400,
+        "intervalMeanMs": 502.7631578947368,
+        "intervalMaxMs": 527
+      },
+      "etr-besu4": {
+        "samples": 39,
+        "errors": 0,
+        "cpuSeconds": 13.820301,
+        "memMaxBytes": 390692864,
+        "intervalMeanMs": 502.8157894736842,
+        "intervalMaxMs": 538
+      }
+    },
+    "cpuSecondsTotal": 56.607432,
+    "memMaxBytesSum": 1583616000,
+    "samplerErrors": 0
+  },
+  "storage": {
+    "before": {
+      "etr-besu1": {
+        "sizeRwBytes": 117301248,
+        "volumes": [],
+        "totalBytes": 117301248
+      },
+      "etr-besu2": {
+        "sizeRwBytes": 117149696,
+        "volumes": [],
+        "totalBytes": 117149696
+      },
+      "etr-besu3": {
+        "sizeRwBytes": 117178368,
+        "volumes": [],
+        "totalBytes": 117178368
+      },
+      "etr-besu4": {
+        "sizeRwBytes": 117108736,
+        "volumes": [],
+        "totalBytes": 117108736
+      }
+    },
+    "after": {
+      "etr-besu1": {
+        "sizeRwBytes": 117817344,
+        "volumes": [],
+        "totalBytes": 117817344
+      },
+      "etr-besu2": {
+        "sizeRwBytes": 117764096,
+        "volumes": [],
+        "totalBytes": 117764096
+      },
+      "etr-besu3": {
+        "sizeRwBytes": 117841920,
+        "volumes": [],
+        "totalBytes": 117841920
+      },
+      "etr-besu4": {
+        "sizeRwBytes": 117755904,
+        "volumes": [],
+        "totalBytes": 117755904
+      }
+    },
+    "growthBytes": 2441216
+  }
+}

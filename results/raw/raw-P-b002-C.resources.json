@@ -1,0 +1,95 @@
+{
+  "schema": 1,
+  "block": 2,
+  "pos": 2,
+  "arm": "C",
+  "seed": 5002,
+  "runId": "raw-P-b002-C",
+  "phase": "raw",
+  "git": {
+    "commit": "b9c1df89b441e269facfb6ff40bf0dc406a58204",
+    "dirty": false
+  },
+  "imageId": "sha256:1d75858d4097d8a59bbd00aab153d3bec1fc97d74587ed093ce8b041617b5b11",
+  "cell": {
+    "m": 50,
+    "k": 3,
+    "n": 5,
+    "pollMs": 500,
+    "examSize": "5MB"
+  },
+  "marks": {
+    "upStart": 1795338444676,
+    "ready": 1795338449140,
+    "sessionStart": 1795338467095,
+    "sessionEnd": 1795338484881
+  },
+  "readySeconds": 4.464,
+  "warmup": {
+    "ok": true,
+    "summary": {
+      "file": "/results/warmup/raw-P-b002-C-warmup.json",
+      "arm": "C",
+      "L50": 249,
+      "L95": 479,
+      "Lmax": 499,
+      "completion60s": 1,
+      "earlyCount": 0,
+      "okCentres": 50,
+      "setupOverran": false,
+      "decryptOracleOk": true,
+      "acceptedShares": null,
+      "alert": null
+    }
+  },
+  "session": {
+    "ok": true,
+    "summary": {
+      "file": "/results/./raw-P-b002-C.json",
+      "arm": "C",
+      "L50": 256,
+      "L95": 484,
+      "Lmax": 502,
+      "completion60s": 1,
+      "earlyCount": 0,
+      "okCentres": 50,
+      "setupOverran": false,
+      "decryptOracleOk": true,
+      "acceptedShares": null,
+      "alert": null
+    },
+    "file": "raw-P-b002-C.json"
+  },
+  "resources": {
+    "perContainer": {
+      "etr-keyserver": {
+        "samples": 36,
+        "errors": 0,
+        "cpuSeconds": 1.300978,
+        "memMaxBytes": 19927040,
+        "intervalMeanMs": 501.1714285714286,
+        "intervalMaxMs": 514
+      }
+    },
+    "cpuSecondsTotal": 1.300978,
+    "memMaxBytesSum": 19927040,
+    "samplerErrors": 0
+  },
+  "storage": {
+    "before": {
+      "etr-keyserver": {
+        "sizeRwBytes": 4096,
+        "volumes": [],
+        "totalBytes": 4096
+      }
+    },
+    "after": {
+      "etr-keyserver": {
+        "sizeRwBytes": 4096,
+        "volumes": [],
+        "totalBytes": 4096
+      }
+    },
+    "growthBytes": 0
+  }
+}

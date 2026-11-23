@@ -1,0 +1,546 @@
+{
+  "schema": 1,
+  "config": {
+    "arm": "B",
+    "runId": "raw-POLL200-b003-B-warmup",
+    "seed": 5803,
+    "m": 50,
+    "k": 3,
+    "n": 5,
+    "pollMs": 200,
+    "examSize": "5MB",
+    "t0DelayMs": 15000,
+    "timeoutMs": 120000,
+    "retryMs": 250,
+    "present": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "outDir": "/results/warmup",
+    "endpoint": "http://coordinator:8080",
+    "fault": null,
+    "testId": null,
+    "trusteeMode": "at-t0",
+    "jitterMaxMs": 0,
+    "bgLoadRps": 0,
+    "censored": []
+  },
+  "examId": "e-5e00f1cd-d485-449f-89e9-cb6f82ca0537",
+  "t0Ms": 1795375627000,
+  "marks": {
+    "start": 1795375611486,
+    "materialReady": 1795375611567,
+    "setupDone": 1795375611705,
+    "end": 1795375627329
+  },
+  "summary": {
+    "L50": 218,
+    "L95": 324,
+    "Lmax": 329,
+    "completion60s": 1,
+    "earlyCount": 0,
+    "okCentres": 50,
+    "setupOverran": false,
+    "decryptOracleOk": true,
+    "acceptedShares": 5,
+    "alert": null
+  },
+  "trustees": [
+    {
+      "index": 0,
+      "ok": true,
+      "status": 201,
+      "attempts": 1,
+      "sentAtMs": 1795375626999,
+      "doneAtMs": 1795375627043
+    },
+    {
+      "index": 1,
+      "ok": true,
+      "status": 201,
+      "attempts": 1,
+      "sentAtMs": 1795375627002,
+      "doneAtMs": 1795375627047
+    },
+    {
+      "index": 2,
+      "ok": true,
+      "status": 201,
+      "attempts": 1,
+      "sentAtMs": 1795375627003,
+      "doneAtMs": 1795375627081
+    },
+    {
+      "index": 3,
+      "ok": true,
+      "status": 201,
+      "attempts": 1,
+      "sentAtMs": 1795375627003,
+      "doneAtMs": 1795375627051
+    },
+    {
+      "index": 4,
+      "ok": true,
+      "status": 201,
+      "attempts": 1,
+      "sentAtMs": 1795375627004,
+      "doneAtMs": 1795375627053
+    }
+  ],
+  "centres": [
+    {
+      "centreId": 0,
+      "ok": true,
+      "gotAtMs": 1795375627304,
+      "latencyMs": 304,
+      "early": false,
+      "polls": 71,
+      "errors": 0
+    },
+    {
+      "centreId": 1,
+      "ok": true,
+      "gotAtMs": 1795375627283,
+      "latencyMs": 283,
+      "early": false,
+      "polls": 71,
+      "errors": 0
+    },
+    {
+      "centreId": 2,
+      "ok": true,
+      "gotAtMs": 1795375627329,
+      "latencyMs": 329,
+      "early": false,
+      "polls": 71,
+      "errors": 0
+    },
+    {
+      "centreId": 3,
+      "ok": true,
+      "gotAtMs": 1795375627299,
+      "latencyMs": 299,
+      "early": false,
+      "polls": 71,
+      "errors": 0
+    },
+    {
+      "centreId": 4,
+      "ok": true,
+      "gotAtMs": 1795375627184,
+      "latencyMs": 184,
+      "early": false,
+      "polls": 71,
+      "errors": 0
+    },
+    {
+      "centreId": 5,
+      "ok": true,
+      "gotAtMs": 1795375627312,
+      "latencyMs": 312,
+      "early": false,
+      "polls": 71,
+      "errors": 0
+    },
+    {
+      "centreId": 6,
+      "ok": true,
+      "gotAtMs": 1795375627166,
+      "latencyMs": 166,
+      "early": false,
+      "polls": 70,
+      "errors": 0
+    },
+    {
+      "centreId": 7,
+      "ok": true,
+      "gotAtMs": 1795375627302,
+      "latencyMs": 302,
+      "early": false,
+      "polls": 71,
+      "errors": 0
+    },
+    {
+      "centreId": 8,
+      "ok": true,
+      "gotAtMs": 1795375627324,
+      "latencyMs": 324,
+      "early": false,
+      "polls": 71,
+      "errors": 0
+    },
+    {
+      "centreId": 9,
+      "ok": true,
+      "gotAtMs": 1795375627307,
+      "latencyMs": 307,
+      "early": false,
+      "polls": 71,
+      "errors": 0
+    },
+    {
+      "centreId": 10,
+      "ok": true,
+      "gotAtMs": 1795375627322,
+      "latencyMs": 322,
+      "early": false,
+      "polls": 71,
+      "errors": 0
+    },
+    {
+      "centreId": 11,
+      "ok": true,
+      "gotAtMs": 1795375627195,
+      "latencyMs": 195,
+      "early": false,
+      "polls": 70,
+      "errors": 0
+    },
+    {
+      "centreId": 12,
+      "ok": true,
+      "gotAtMs": 1795375627153,
+      "latencyMs": 153,
+      "early": false,
+      "polls": 70,
+      "errors": 0
+    },
+    {
+      "centreId": 13,
+      "ok": true,
+      "gotAtMs": 1795375627159,
+      "latencyMs": 159,
+      "early": false,
+      "polls": 70,
+      "errors": 0
+    },
+    {
+      "centreId": 14,
+      "ok": true,
+      "gotAtMs": 1795375627144,
+      "latencyMs": 144,
+      "early": false,
+      "polls": 70,
+      "errors": 0
+    },
+    {
+      "centreId": 15,
+      "ok": true,
+      "gotAtMs": 1795375627190,
+      "latencyMs": 190,
+      "early": false,
+      "polls": 70,
+      "errors": 0
+    },
+    {
+      "centreId": 16,
+      "ok": true,
+      "gotAtMs": 1795375627162,
+      "latencyMs": 162,
+      "early": false,
+      "polls": 70,
+      "errors": 0
+    },
+    {
+      "centreId": 17,
+      "ok": true,
+      "gotAtMs": 1795375627214,
+      "latencyMs": 214,
+      "early": false,
+      "polls": 70,
+      "errors": 0
+    },
+    {
+      "centreId": 18,
+      "ok": true,
+      "gotAtMs": 1795375627187,
+      "latencyMs": 187,
+      "early": false,
+      "polls": 70,
+      "errors": 0
+    },
+    {
+      "centreId": 19,
+      "ok": true,
+      "gotAtMs": 1795375627099,
+      "latencyMs": 99,
+      "early": false,
+      "polls": 70,
+      "errors": 0
+    },
+    {
+      "centreId": 20,
+      "ok": true,
+      "gotAtMs": 1795375627248,
+      "latencyMs": 248,
+      "early": false,
+      "polls": 70,
+      "errors": 0
+    },
+    {
+      "centreId": 21,
+      "ok": true,
+      "gotAtMs": 1795375627230,
+      "latencyMs": 230,
+      "early": false,
+      "polls": 70,
+      "errors": 0
+    },
+    {
+      "centreId": 22,
+      "ok": true,
+      "gotAtMs": 1795375627205,
+      "latencyMs": 205,
+      "early": false,
+      "polls": 70,
+      "errors": 0
+    },
+    {
+      "centreId": 23,
+      "ok": true,
+      "gotAtMs": 1795375627317,
+      "latencyMs": 317,
+      "early": false,
+      "polls": 70,
+      "errors": 0
+    },
+    {
+      "centreId": 24,
+      "ok": true,
+      "gotAtMs": 1795375627243,
+      "latencyMs": 243,
+      "early": false,
+      "polls": 70,
+      "errors": 0
+    },
+    {
+      "centreId": 25,
+      "ok": true,
+      "gotAtMs": 1795375627246,
+      "latencyMs": 246,
+      "early": false,
+      "polls": 70,
+      "errors": 0
+    },
+    {
+      "centreId": 26,
+      "ok": true,
+      "gotAtMs": 1795375627218,
+      "latencyMs": 218,
+      "early": false,
+      "polls": 70,
+      "errors": 0
+    },
+    {
+      "centreId": 27,
+      "ok": true,
+      "gotAtMs": 1795375627289,
+      "latencyMs": 289,
+      "early": false,
+      "polls": 70,
+      "errors": 0
+    },
+    {
+      "centreId": 28,
+      "ok": true,
+      "gotAtMs": 1795375627256,
+      "latencyMs": 256,
+      "early": false,
+      "polls": 71,
+      "errors": 0
+    },
+    {
+      "centreId": 29,
+      "ok": true,
+      "gotAtMs": 1795375627252,
+      "latencyMs": 252,
+      "early": false,
+      "polls": 71,
+      "errors": 0
+    },
+    {
+      "centreId": 30,
+      "ok": true,
+      "gotAtMs": 1795375627197,
+      "latencyMs": 197,
+      "early": false,
+      "polls": 72,
+      "errors": 0
+    },
+    {
+      "centreId": 31,
+      "ok": true,
+      "gotAtMs": 1795375627276,
+      "latencyMs": 276,
+      "early": false,
+      "polls": 72,
+      "errors": 0
+    },
+    {
+      "centreId": 32,
+      "ok": true,
+      "gotAtMs": 1795375627210,
+      "latencyMs": 210,
+      "early": false,
+      "polls": 72,
+      "errors": 0
+    },
+    {
+      "centreId": 33,
+      "ok": true,
+      "gotAtMs": 1795375627319,
+      "latencyMs": 319,
+      "early": false,
+      "polls": 72,
+      "errors": 0
+    },
+    {
+      "centreId": 34,
+      "ok": true,
+      "gotAtMs": 1795375627314,
+      "latencyMs": 314,
+      "early": false,
+      "polls": 72,
+      "errors": 0
+    },
+    {
+      "centreId": 35,
+      "ok": true,
+      "gotAtMs": 1795375627327,
+      "latencyMs": 327,
+      "early": false,
+      "polls": 72,
+      "errors": 0
+    },
+    {
+      "centreId": 36,
+      "ok": true,
+      "gotAtMs": 1795375627296,
+      "latencyMs": 296,
+      "early": false,
+      "polls": 72,
+      "errors": 0
+    },
+    {
+      "centreId": 37,
+      "ok": true,
+      "gotAtMs": 1795375627286,
+      "latencyMs": 286,
+      "early": false,
+      "polls": 72,
+      "errors": 0
+    },
+    {
+      "centreId": 38,
+      "ok": true,
+      "gotAtMs": 1795375627122,
+      "latencyMs": 122,
+      "early": false,
+      "polls": 71,
+      "errors": 0
+    },
+    {
+      "centreId": 39,
+      "ok": true,
+      "gotAtMs": 1795375627136,
+      "latencyMs": 136,
+      "early": false,
+      "polls": 71,
+      "errors": 0
+    },
+    {
+      "centreId": 40,
+      "ok": true,
+      "gotAtMs": 1795375627309,
+      "latencyMs": 309,
+      "early": false,
+      "polls": 72,
+      "errors": 0
+    },
+    {
+      "centreId": 41,
+      "ok": true,
+      "gotAtMs": 1795375627087,
+      "latencyMs": 87,
+      "early": false,
+      "polls": 71,
+      "errors": 0
+    },
+    {
+      "centreId": 42,
+      "ok": true,
+      "gotAtMs": 1795375627130,
+      "latencyMs": 130,
+      "early": false,
+      "polls": 71,
+      "errors": 0
+    },
+    {
+      "centreId": 43,
+      "ok": true,
+      "gotAtMs": 1795375627119,
+      "latencyMs": 119,
+      "early": false,
+      "polls": 71,
+      "errors": 0
+    },
+    {
+      "centreId": 44,
+      "ok": true,
+      "gotAtMs": 1795375627192,
+      "latencyMs": 192,
+      "early": false,
+      "polls": 71,
+      "errors": 0
+    },
+    {
+      "centreId": 45,
+      "ok": true,
+      "gotAtMs": 1795375627102,
+      "latencyMs": 102,
+      "early": false,
+      "polls": 71,
+      "errors": 0
+    },
+    {
+      "centreId": 46,
+      "ok": true,
+      "gotAtMs": 1795375627140,
+      "latencyMs": 140,
+      "early": false,
+      "polls": 71,
+      "errors": 0
+    },
+    {
+      "centreId": 47,
+      "ok": true,
+      "gotAtMs": 1795375627293,
+      "latencyMs": 293,
+      "early": false,
+      "polls": 71,
+      "errors": 0
+    },
+    {
+      "centreId": 48,
+      "ok": true,
+      "gotAtMs": 1795375627201,
+      "latencyMs": 201,
+      "early": false,
+      "polls": 71,
+      "errors": 0
+    },
+    {
+      "centreId": 49,
+      "ok": true,
+      "gotAtMs": 1795375627176,
+      "latencyMs": 176,
+      "early": false,
+      "polls": 71,
+      "errors": 0
+    }
+  ],
+  "fault": null
+}
