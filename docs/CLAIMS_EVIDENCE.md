@@ -15,6 +15,7 @@ Abbreviations of source files:
 | RAW | `results/raw/raw-<cell>-b<NNN>-<arm>.json` (raw measured runs) |
 | VAL | `results/validation/tool-validation-2026-11-19T08-41-13-003Z.json` |
 | SL | `results/static-analysis/` (Slither output) |
+| LS | `docs/LITERATURE_SEARCH.md` (search protocol and screened records) |
 | RL | `docs/RUN_LOG.md` |
 | DV | `docs/DEVIATIONS.md` |
 | PR | `docs/preregistration_v1_2026-11-18.pdf` |
@@ -65,6 +66,7 @@ All latencies in S, E and R are in milliseconds; the paper reports seconds round
 | Claim | Value | Evidence |
 | --- | --- | --- |
 | H1b: early releases | A 0/130, B 0/130, C 0/20 | S `H1b`; R `earlyCount` (sum 0) |
+| One-sided 95 % upper bound on the per-run early-release rate, A and B | about 2.3 % | rule of three, 3 / 130 = 0.0231 (arithmetic on S `H1b`) |
 | Median L95 A, primary cell, with bootstrap CI | 1804.5 [1735.5, 1924] ms | S `cells.P.metrics.L95.medianA`, `ciA`; E row P,L95 |
 | Median L95 B | 491.5 [489, 496.5] ms | S `cells.P.metrics.L95.medianB`, `ciB` |
 | Median L95 C | 478 [472.5, 480.5] ms | S `referenceC.metrics.L95.medianA`, `ciA` (field "A" holds arm C in this block) |
@@ -119,12 +121,21 @@ All latencies in S, E and R are in milliseconds; the paper reports seconds round
 | C: 1.31 CPU-s, 18.8 MB | 1.305 / 18.809 | S `referenceC.metrics.cpu_s.medianA`, `mem_MB.medianA` |
 | CPU ratio range 1.95 (M200) to 5.40 (M10); memory ratio 7.96 to 15.0 | as stated | E column `median_ratio_A_over_B`, rows `*,cpu_s` and `*,mem_MB` |
 | CPU B 4.2 s at M10, 32.5 s at M200; A 22.3 s and 63.9 s | 4.175 / 32.451 / 22.328 / 63.871 | E rows M10,cpu_s and M200,cpu_s |
+| A memory 1,432 MB at M10, 1,515 MB at M200 | 1432.469 / 1515.330 | E rows M10,mem_MB and M200,mem_MB (`median_A`) |
 
 ## Static analysis (Section 4.2, Section 9)
 
 | Claim | Value | Evidence |
 | --- | --- | --- |
 | Slither 0.11.6, 102 detectors, one finding (timestamp, impact Low) | as stated | SL `slither-ExamRelease.txt`, `slither-ExamRelease.json`, `README.md` |
+
+## Literature search (Section 2, Appendix B)
+
+| Claim | Value | Evidence |
+| --- | --- | --- |
+| Seven OpenAlex queries on 23 Nov 2026, 533 records | per-query counts in Table B1 | LS |
+| 23 abstracts and six full texts read; no matched non-ledger threshold comparison found | - | LS (screened-in table) |
+| Closest work leaves quantitative evaluation to future work | - | LS (Pasha 2026 row) |
 
 ## Figures
 
