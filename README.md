@@ -1,5 +1,7 @@
 # Exam Timed-Release Benchmark
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24525633.svg)](https://doi.org/10.5281/zenodo.24525633)
+
 **When Does a Ledger Help? A Decision Framework and Matched Benchmark for Threshold Time-Released Examination Papers**
 
 Author: Ahmed A. Aboessa
@@ -30,5 +32,6 @@ Synthetic data only: random exam files with a fixed seed, synthetic trustees and
 
 - Code: MIT License (`LICENSE`).
 - Data, results and documentation (`results/`, `docs/`): CC BY 4.0 (`LICENSE-DATA.md`).
-- How to cite: see `CITATION.cff` (GitHub's "Cite this repository" button). The Zenodo DOI will be added here after
-  the first archived release.
+- How to cite: see `CITATION.cff` (GitHub's "Cite this repository" button).
+- Archived on Zenodo: release v1.0.0, DOI [10.5281/zenodo.24525633](https://doi.org/10.5281/zenodo.24525633)
+  (all versions: [10.5281/zenodo.24525632](https://doi.org/10.5281/zenodo.24525632)).

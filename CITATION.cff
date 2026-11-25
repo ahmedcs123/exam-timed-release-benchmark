@@ -4,6 +4,14 @@ type: software
 title: "Exam Timed-Release Benchmark: a pre-registered matched benchmark of threshold key release through a smart contract, a replicated coordinator and a central key server"
 version: 1.0.0
 date-released: 2026-11-25
+doi: 10.5281/zenodo.24525632
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.24525632
+    description: "Concept DOI: all versions, resolves to the latest"
+  - type: doi
+    value: 10.5281/zenodo.24525633
+    description: "Version DOI: release v1.0.0 (archive cited in the manuscript)"
 authors:
   - family-names: Aboessa
     given-names: Ahmed A.
