@@ -39,3 +39,7 @@ arm-a-ledger/network/generated/
 # Smoke and pilot outputs (not part of the measured data)
 results/smoke/
 results/pilot/
+
+# Manuscript drafts (not part of the public repository or its Zenodo archive)
+/*.docx
+/*.pdf

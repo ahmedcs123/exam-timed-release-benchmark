@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this software or data, please cite it as below."
+type: software
+title: "Exam Timed-Release Benchmark: a pre-registered matched benchmark of threshold key release through a smart contract, a replicated coordinator and a central key server"
+version: 1.0.0
+date-released: 2026-11-25
+authors:
+  - family-names: Aboessa
+    given-names: Ahmed A.
+    affiliation: "Department of Mathematics and Computer Science, Faculty of Science, Menoufia University, Egypt"
+license: MIT
+repository-code: "https://github.com/ahmedcs123/exam-timed-release-benchmark"
+abstract: >-
+  Code, pre-registration, raw run records and analysis scripts for a pre-registered benchmark of timed release of
+  examination-paper keys with Shamir threshold sharing, comparing a Solidity contract on a four-validator Hyperledger
+  Besu QBFT network, a REST coordinator over a three-node etcd cluster, and a central key server. Includes 280 measured
+  runs, nine scripted fault and security tests, an exploratory network-delay cell and static analysis of the contract.
+  All data are synthetic. Data, results and documentation are licensed under CC BY 4.0 (see LICENSE-DATA.md).
+keywords:
+  - examination paper leakage
+  - timed release
+  - threshold secret sharing
+  - smart contracts
+  - Hyperledger Besu
+  - etcd
+  - benchmark
+  - pre-registration

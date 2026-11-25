@@ -25,3 +25,10 @@ Author: Ahmed A. Aboessa
 ## Data
 
 Synthetic data only: random exam files with a fixed seed, synthetic trustees and exam centres. No real exams and no personal data.
+
+## License and citation
+
+- Code: MIT License (`LICENSE`).
+- Data, results and documentation (`results/`, `docs/`): CC BY 4.0 (`LICENSE-DATA.md`).
+- How to cite: see `CITATION.cff` (GitHub's "Cite this repository" button). The Zenodo DOI will be added here after
+  the first archived release.
