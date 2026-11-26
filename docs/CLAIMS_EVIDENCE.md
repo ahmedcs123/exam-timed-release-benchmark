@@ -21,7 +21,7 @@ Abbreviations of source files:
 | DV | `docs/DEVIATIONS.md` |
 | PR | `docs/preregistration_v1_2026-11-18.pdf` |
 
-All latencies in S, E and R are in milliseconds; the paper reports seconds rounded half up to two decimals.
+All latencies in S, E and R are in milliseconds; the paper reports seconds rounded half up to two decimals. Rounding is applied to the full-precision values in S (`cells.P.metrics.*`), not to E, which is already rounded to three decimals (rounding twice can change the last digit, e.g. 1.3845 -> 1.385 -> 1.39 instead of 1.38).
 
 ## Design and setup (Sections 4-5)
 
@@ -79,7 +79,7 @@ All latencies in S, E and R are in milliseconds; the paper reports seconds round
 | Bootstrap CI of median difference | [1247, 1436] ms | S `H1.bootstrapCI` |
 | Ratio L95 A/B 3.70 [3.56, 3.93] | as stated | E row P,L95 `median_ratio_A_over_B`, `ratio_lo`, `ratio_hi` |
 | 16 differences in 1.17-1.55 s, 4 in 2.17-2.28 s | as stated | S `H1.differencesMs` (20 values) |
-| Share-availability lag A 1.49 s, B 0.04 s (post-hoc definition) | 1.489 / 0.045 s | E row P,shareLag_s; DV row 2026-11-22 (metrics) |
+| Share-availability lag A 1.49 s, B 0.045 s (post-hoc definition); Table 4: B 0.045 [0.044, 0.050], difference 1.45 [1.38, 1.56] | 1.489 / 0.045 s; S `cells.P.metrics.shareLag_s` (`ciB` [0.0435, 0.05], `ciDiff` [1.3845, 1.562]) | E row P,shareLag_s; DV row 2026-11-22 (metrics) |
 | L50 difference 1.25 s | 1251.5 ms | E row P,L50 |
 | All other values in Table 4 | as stated | E rows `P,*`; S `referenceC.metrics.*` for column C; S `gas.P` for gas |
 | Sensitivity medians and exact CIs (Figure 3) | per cell | E rows `<cell>,L95`: `median_diff_A_minus_B`, `diff_exact_lo`, `diff_exact_hi` |
@@ -117,7 +117,7 @@ All latencies in S, E and R are in milliseconds; the paper reports seconds round
 | F6 B: censored centres never got the key; A: they did | - | FV (F6 checks); FR `faults-F6-*`; RL row 2026-11-20 (group 3) |
 | F7 A 9/10: run b007 kill issued 1 ms before T0, all 50 centres got the key | - | FV `F7/A.failedRuns`; FR `faults-F7-b007-A.json`; RL row 2026-11-20 (group 3) |
 | F7 A: centres on the killed node about 6 s | L95 5.86-6.14 s, Lmax 6.01-6.17 s | FR `faults-F7-b0*-A.json` `summary.L95`, `summary.Lmax`; RL |
-| F7 B: one run about 1.2 s (leader election) | b005 | FR `faults-F7-b005-B.json`; RL row 2026-11-20 (group 3) |
+| F7 B: one run about 1.3 s (leader election) | b005: L95 1270 ms, Lmax 1275 ms | FR `faults-F7-b005-B.json`; RL row 2026-11-20 (group 3) |
 | F8 A: writes refused, three changes detected; B: edit detected, re-time and deletion not | - | FV `F8` checks; FR `faults-F8-*`; RL row 2026-11-20 (group 4) |
 | G1 A: re-registration reverted; B: direct write accepted, honest shares rejected, no key | - | FV `G1` checks; FR `faults-G1-*`; RL row 2026-11-20 (group 4) |
 | G1 met by immutability, not multisig | - | DV row 2026-11-20 (G1) |
@@ -146,7 +146,7 @@ All latencies in S, E and R are in milliseconds; the paper reports seconds round
 | Claim | Value | Evidence |
 | --- | --- | --- |
 | Seven OpenAlex queries on 23 Nov 2026, 533 records | per-query counts in Table B1 | LS |
-| 23 abstracts and six full texts read; no matched non-ledger threshold comparison found | - | LS (screened-in table) |
+| 23 abstracts read, full texts of the closest works available (Table 1 rows without †); no matched non-ledger threshold comparison found | - | LS (screened-in table) |
 | Closest work leaves quantitative evaluation to future work | - | LS (Pasha 2026 row) |
 
 ## Figures

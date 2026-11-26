@@ -98,7 +98,7 @@ for ax,(m,ttl) in zip(axs,[('cpu_s','CPU-seconds per session'),('mem_MB','Peak m
     for i,(md,ci,col) in enumerate(vals):
         ax.bar(i,md,width=.55,color=col,edgecolor='none')
         ax.plot([i,i],ci,color=INK,lw=1); 
-        ax.text(i,max(ci[1],md)+ax.get_ylim()[1]*0.0,f'{md:.2f}' if md<10 else f'{md:.0f}' if md>=100 else f'{md:.1f}',ha='center',va='bottom',fontsize=7.5)
+        ax.text(i,max(ci[1],md)+ax.get_ylim()[1]*0.0,f'{md:.3f}' if 0<md<0.1 else f'{md:.2f}' if md<10 else f'{md:.0f}' if md>=100 else f'{md:.1f}',ha='center',va='bottom',fontsize=7.5)
     ax.set_xticks([0,1,2],['A','B','C']); ax.set_title(ttl,fontsize=8.5,loc='left'); ax.grid(axis='x',visible=False)
     ax.margins(y=.15)
 f.tight_layout(); save(f,'fig5_cost')
